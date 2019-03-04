@@ -359,7 +359,9 @@ RadarObstacles ContiToRadarObstacles(
   obstacles.mutable_header()->CopyFrom(conti_radar.header());
   return obstacles;
 }
-
+/*
+* 德尔福毫米波雷达消息转雷达障碍物消息
+*/
 RadarObstacles DelphiToRadarObstacles(
     const DelphiESR& delphi_esr, const LocalizationEstimate& localization,
     const RadarObstacles& last_radar_obstacles) {
