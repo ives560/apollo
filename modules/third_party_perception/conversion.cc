@@ -365,17 +365,17 @@ RadarObstacles ContiToRadarObstacles(
 RadarObstacles DelphiToRadarObstacles(
     const DelphiESR& delphi_esr, const LocalizationEstimate& localization,
     const RadarObstacles& last_radar_obstacles) {
-  RadarObstacles obstacles;
+  RadarObstacles obstacles;   //雷达障碍物集合
 
   const double last_timestamp = last_radar_obstacles.header().timestamp_sec();
   const double current_timestamp = delphi_esr.header().timestamp_sec();
 
-  // assign motion power from 540
+  // 分配运动功率从 id 540
   std::vector<apollo::drivers::Esr_trackmotionpower_540::Motionpower>
       motionpowers(64);
   for (const auto& esr_trackmotionpower_540 :
        delphi_esr.esr_trackmotionpower_540()) {
-    if (!esr_trackmotionpower_540.has_can_tx_track_can_id_group()) {
+    if (!esr_trackmotionpower_540.has_can_tx_track_can_id_group()) {  //没有can_tx_track_can_id_group数据
       AERROR << "ESR track motion power 540 does not have "
                 "can_tx_track_can_id_group()";
       continue;
@@ -392,8 +392,8 @@ RadarObstacles DelphiToRadarObstacles(
         motionpowers[motion_powers_index].CopyFrom(
             esr_trackmotionpower_540.can_tx_track_motion_power(index));
       }
-    }
-  }
+    }// end for
+  }// end for (const auto& esr_trackmotionpower_540 :
 
   const auto adc_pos = localization.pose().position();
   const auto adc_vel = localization.pose().linear_velocity();
@@ -405,7 +405,7 @@ RadarObstacles DelphiToRadarObstacles(
        ++index) {
     const auto& data_500 = delphi_esr.esr_track01_500(index);
 
-    // ignore invalid target
+    // 忽略无效目标
     if (data_500.can_tx_track_status() ==
         apollo::drivers::Esr_track01_500::CAN_TX_TRACK_STATUS_NO_TARGET) {
       continue;
@@ -475,15 +475,15 @@ RadarObstacles DelphiToRadarObstacles(
       } else {
         rob.set_moving_frames_count(0);
       }
-    }
+    }// end if (iter == last_radar_obstacles.radar_obstacle().end()) 
 
     rob.mutable_absolute_velocity()->CopyFrom(absolute_vel);
 
     if (rob.moving_frames_count() >= FLAGS_movable_frames_count_threshold) {
       rob.set_movable(true);
     }
-    (*obstacles.mutable_radar_obstacle())[index] = rob;
-  }
+    (*obstacles.mutable_radar_obstacle())[index] = rob;   //赋值给雷达障碍物集合index的索引
+  }// end for (int index = 0; index < delphi_esr.esr_track01_500_size() &&
 
   obstacles.mutable_header()->CopyFrom(delphi_esr.header());
   return obstacles;

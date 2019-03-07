@@ -57,16 +57,17 @@ void ThirdPartyPerception::OnChassis(const Chassis& message) {
   chassis_.CopyFrom(message);
 }
 
+//接收到德尔福毫米波雷达消息
 void ThirdPartyPerception::OnDelphiESR(const DelphiESR& message) {
   ADEBUG << "Received delphi esr data: run delphi esr callback.";
   std::lock_guard<std::mutex> lock(third_party_perception_mutex_);
   last_radar_obstacles_.CopyFrom(current_radar_obstacles_);
-  current_radar_obstacles_ = conversion::DelphiToRadarObstacles(
+  current_radar_obstacles_ = conversion::DelphiToRadarObstacles(          //转为RadarObstacles雷达障碍物消息
       message, localization_, last_radar_obstacles_);
   RadarObstacles filtered_radar_obstacles =
-      filter::FilterRadarObstacles(current_radar_obstacles_);
+      filter::FilterRadarObstacles(current_radar_obstacles_);             //过滤雷达消息
   if (FLAGS_enable_radar) {
-    radar_obstacles_ = conversion::RadarObstaclesToPerceptionObstacles(
+    radar_obstacles_ = conversion::RadarObstaclesToPerceptionObstacles(   //雷达RadarObstacles消息转障碍物PerceptionObstacles消息
         filtered_radar_obstacles);
   }
 }
@@ -98,9 +99,9 @@ bool ThirdPartyPerception::Process(PerceptionObstacles* const response) {
   std::lock_guard<std::mutex> lock(third_party_perception_mutex_);
 
   *response =
-      fusion::MobileyeRadarFusion(mobileye_obstacles_, radar_obstacles_);
+      fusion::MobileyeRadarFusion(mobileye_obstacles_, radar_obstacles_);       //摄像头和毫米波雷达融合，返回response 在component中发送消息
 
-  common::util::FillHeader(FLAGS_third_party_perception_node_name, response);
+  common::util::FillHeader(FLAGS_third_party_perception_node_name, response);   //添加消息头
 
   mobileye_obstacles_.Clear();
   radar_obstacles_.Clear();
