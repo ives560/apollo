@@ -487,7 +487,7 @@ RadarObstacles DelphiToRadarObstacles(
 
   obstacles.mutable_header()->CopyFrom(delphi_esr.header());
   return obstacles;
-}
+}//end DelphiToRadarObstacles
 
 PerceptionObstacles RadarObstaclesToPerceptionObstacles(
     const RadarObstacles& radar_obstacles) {
