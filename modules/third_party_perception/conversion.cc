@@ -489,6 +489,8 @@ RadarObstacles DelphiToRadarObstacles(
   return obstacles;
 }//end DelphiToRadarObstacles
 
+
+//雷达RadarObstacles消息转障碍物PerceptionObstacles消息
 PerceptionObstacles RadarObstaclesToPerceptionObstacles(
     const RadarObstacles& radar_obstacles) {
   PerceptionObstacles obstacles;
@@ -514,7 +516,7 @@ PerceptionObstacles RadarObstaclesToPerceptionObstacles(
 
     pob->set_theta(radar_obstacle.theta());
 
-    // create polygon
+    // 创建多边形
     FillPerceptionPolygon(pob, pob->position().x(), pob->position().y(),
                           pob->position().z(), pob->length(), pob->width(),
                           pob->height(), pob->theta());

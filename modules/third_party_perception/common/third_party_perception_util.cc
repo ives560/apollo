@@ -46,6 +46,7 @@ double GetAngleFromQuaternion(const Quaternion quaternion) {
   return theta;
 }
 
+// 创建多边形
 void FillPerceptionPolygon(PerceptionObstacle* const perception_obstacle,
                            const double mid_x, const double mid_y,
                            const double mid_z, const double length,

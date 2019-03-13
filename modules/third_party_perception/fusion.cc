@@ -64,6 +64,7 @@ bool HasOverlap(const PerceptionObstacle& obstacle,
   return false;
 }
 
+// 摄像头和雷达融合
 PerceptionObstacles MobileyeRadarFusion(
     const PerceptionObstacles& mobileye_obstacles,
     const PerceptionObstacles& radar_obstacles) {
@@ -74,10 +75,10 @@ PerceptionObstacles MobileyeRadarFusion(
        *(mobileye_obstacles_fusion.mutable_perception_obstacle())) {
     for (auto& radar_obstacle :
          *(radar_obstacles_fusion.mutable_perception_obstacle())) {
-      if (HasOverlap(mobileye_obstacle, radar_obstacle)) {
-        mobileye_obstacle.set_confidence(0.99);
+      if (HasOverlap(mobileye_obstacle, radar_obstacle)) {      //是否重叠
+        mobileye_obstacle.set_confidence(0.99);                 //修改障碍物可信度为0.99
         mobileye_obstacle.mutable_velocity()->CopyFrom(
-            radar_obstacle.velocity());
+            radar_obstacle.velocity());                         //设置速度
       }
     }
   }
