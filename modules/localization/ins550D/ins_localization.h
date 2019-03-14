@@ -28,17 +28,17 @@
 #include "modules/drivers/gnss/proto/ins.pb.h"
 #include "modules/localization/proto/imu.pb.h"
 #include "modules/localization/proto/localization.pb.h"
-#include "modules/localization/proto/rtk_config.pb.h"
+#include "modules/localization/proto/ins_config.pb.h"
 
 namespace apollo {
 namespace localization {
 
-class RTKLocalization {
+class INSLocalization {
  public:
-  RTKLocalization();
-  ~RTKLocalization() = default;
+  INSLocalization();
+  ~INSLocalization() = default;
 
-  void InitConfig(const rtk_config::Config &config);
+  void InitConfig(const ins_config::Config &config);
 
   void GpsCallback(const std::shared_ptr<localization::Gps> &gps_msg);
   void GpsStatusCallback(
@@ -102,8 +102,8 @@ class RTKLocalization {
   int report_threshold_err_num_ = 10;
   apollo::common::monitor::MonitorLogBuffer monitor_logger_;
 
-  FRIEND_TEST(RTKLocalizationTest, InterpolateIMU);
-  FRIEND_TEST(RTKLocalizationTest, ComposeLocalizationMsg);
+  FRIEND_TEST(INSLocalizationTest, InterpolateIMU);
+  FRIEND_TEST(INSLocalizationTest, ComposeLocalizationMsg);
 };
 
 }  // namespace localization

@@ -15,17 +15,17 @@
  *****************************************************************************/
 
 #include "modules/common/time/time.h"
-#include "modules/localization/rtk/rtk_localization_component.h"
+#include "modules/localization/ins550D/ins_localization_component.h"
 
 namespace apollo {
 namespace localization {
 
 using apollo::common::time::Clock;
 
-RTKLocalizationComponent::RTKLocalizationComponent()
-    : localization_(new RTKLocalization()) {}
+INSLocalizationComponent::INSLocalizationComponent()
+    : localization_(new INSLocalization()) {}
 
-bool RTKLocalizationComponent::Init() {
+bool INSLocalizationComponent::Init() {
   Clock::SetMode(Clock::CYBER);
   tf2_broadcaster_.reset(new apollo::transform::TransformBroadcaster(node_));
   if (InitConfig() != true) {
@@ -41,32 +41,32 @@ bool RTKLocalizationComponent::Init() {
   return true;
 }
 
-bool RTKLocalizationComponent::InitConfig() {
-  rtk_config::Config rtk_config;
+bool INSLocalizationComponent::InitConfig() {
+  ins_config::Config ins_config;
   if (!apollo::cyber::common::GetProtoFromFile(config_file_path_,
-                                                   &rtk_config)) {
+                                                   &ins_config)) {
     return false;
   }
-  AINFO << "Rtk localization config: " << rtk_config.DebugString();
+  AINFO << "Ins localization config: " << ins_config.DebugString();
 
-  localization_topic_ = rtk_config.localization_topic();
-  localization_status_topic_ = rtk_config.localization_status_topic();
-  imu_topic_ = rtk_config.imu_topic();
-  gps_topic_ = rtk_config.gps_topic();
-  gps_status_topic_ = rtk_config.gps_status_topic();
-  broadcast_tf_frame_id_ = rtk_config.broadcast_tf_frame_id();
-  broadcast_tf_child_frame_id_ = rtk_config.broadcast_tf_child_frame_id();
+  localization_topic_ = ins_config.localization_topic();
+  localization_status_topic_ = ins_config.localization_status_topic();
+  imu_topic_ = ins_config.imu_topic();
+  gps_topic_ = ins_config.gps_topic();
+  gps_status_topic_ = ins_config.gps_status_topic();
+  broadcast_tf_frame_id_ = ins_config.broadcast_tf_frame_id();
+  broadcast_tf_child_frame_id_ = ins_config.broadcast_tf_child_frame_id();
 
-  localization_->InitConfig(rtk_config);
+  localization_->InitConfig(ins_config);
 
   return true;
 }
 
-bool RTKLocalizationComponent::InitIO() {
+bool INSLocalizationComponent::InitIO() {
   corrected_imu_listener_ = node_->CreateReader<localization::CorrectedImu>(
       imu_topic_,
       std::bind(
-          &RTKLocalization::ImuCallback,
+          &INSLocalization::ImuCallback,
           localization_.get(),
           std::placeholders::_1));
   DCHECK_NOTNULL(corrected_imu_listener_);
@@ -74,7 +74,7 @@ bool RTKLocalizationComponent::InitIO() {
   gps_status_listener_ = node_->CreateReader<drivers::gnss::InsStat>(
       gps_status_topic_,
       std::bind(
-          &RTKLocalization::GpsStatusCallback,
+          &INSLocalization::GpsStatusCallback,
           localization_.get(),
           std::placeholders::_1));
   DCHECK_NOTNULL(gps_status_listener_);
@@ -89,7 +89,7 @@ bool RTKLocalizationComponent::InitIO() {
   return true;
 }
 
-bool RTKLocalizationComponent::Proc(
+bool INSLocalizationComponent::Proc(
     const std::shared_ptr<localization::Gps>& gps_msg) {
   localization_->GpsCallback(gps_msg);
 
@@ -109,7 +109,7 @@ bool RTKLocalizationComponent::Proc(
   return true;
 }
 
-void RTKLocalizationComponent::PublishPoseBroadcastTF(
+void INSLocalizationComponent::PublishPoseBroadcastTF(
     const LocalizationEstimate& localization) {
   // broadcast tf message
   apollo::transform::TransformStamped tf2_msg;
@@ -134,13 +134,13 @@ void RTKLocalizationComponent::PublishPoseBroadcastTF(
   return;
 }
 
-void RTKLocalizationComponent::PublishPoseBroadcastTopic(
+void INSLocalizationComponent::PublishPoseBroadcastTopic(
     const LocalizationEstimate& localization) {
   localization_talker_->Write(localization);
   return;
 }
 
-void RTKLocalizationComponent::PublishLocalizationStatus(
+void INSLocalizationComponent::PublishLocalizationStatus(
     const LocalizationStatus& localization_status) {
   localization_status_talker_->Write(localization_status);
   return;

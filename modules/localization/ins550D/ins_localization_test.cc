@@ -14,7 +14,7 @@
  * limitations under the License.
  *****************************************************************************/
 
-#include "modules/localization/rtk/rtk_localization.h"
+#include "modules/localization/ins550D/ins_localization.h"
 
 #include "google/protobuf/text_format.h"
 #include "gtest/gtest.h"
@@ -25,9 +25,9 @@
 namespace apollo {
 namespace localization {
 
-class RTKLocalizationTest : public ::testing::Test {
+class INSLocalizationTest : public ::testing::Test {
  public:
-  virtual void SetUp() { rtk_localizatoin_.reset(new RTKLocalization()); }
+  virtual void SetUp() { ins_localizatoin_.reset(new INSLocalization()); }
 
  protected:
   template <class T>
@@ -36,10 +36,10 @@ class RTKLocalizationTest : public ::testing::Test {
         << "Failed to open file " << filename;
   }
 
-  std::unique_ptr<RTKLocalization> rtk_localizatoin_;
+  std::unique_ptr<INSLocalization> ins_localizatoin_;
 };
 
-TEST_F(RTKLocalizationTest, InterpolateIMU) {
+TEST_F(INSLocalizationTest, InterpolateIMU) {
   // timestamp inbetween + time_diff is big enough(>0.001), interpolate
   {
     apollo::localization::CorrectedImu imu1;
@@ -54,7 +54,7 @@ TEST_F(RTKLocalizationTest, InterpolateIMU) {
 
     apollo::localization::CorrectedImu imu;
     double timestamp = 1173545122.69;
-    rtk_localizatoin_->InterpolateIMU(imu1, imu2, timestamp, &imu);
+    ins_localizatoin_->InterpolateIMU(imu1, imu2, timestamp, &imu);
 
     EXPECT_EQ(expected_result.DebugString(), imu.DebugString());
   }
@@ -73,7 +73,7 @@ TEST_F(RTKLocalizationTest, InterpolateIMU) {
 
     apollo::localization::CorrectedImu imu;
     double timestamp = 1173545122.2001;
-    rtk_localizatoin_->InterpolateIMU(imu1, imu2, timestamp, &imu);
+    ins_localizatoin_->InterpolateIMU(imu1, imu2, timestamp, &imu);
 
     EXPECT_EQ(expected_result.DebugString(), imu.DebugString());
   }
@@ -91,7 +91,7 @@ TEST_F(RTKLocalizationTest, InterpolateIMU) {
 
     apollo::localization::CorrectedImu imu;
     double timestamp = 1173545122;
-    rtk_localizatoin_->InterpolateIMU(imu1, imu2, timestamp, &imu);
+    ins_localizatoin_->InterpolateIMU(imu1, imu2, timestamp, &imu);
 
     EXPECT_EQ(expected_result.DebugString(), imu.DebugString());
   }
@@ -109,13 +109,13 @@ TEST_F(RTKLocalizationTest, InterpolateIMU) {
 
     apollo::localization::CorrectedImu imu;
     double timestamp = 1173545122.70;
-    rtk_localizatoin_->InterpolateIMU(imu1, imu2, timestamp, &imu);
+    ins_localizatoin_->InterpolateIMU(imu1, imu2, timestamp, &imu);
 
     EXPECT_EQ(expected_result.DebugString(), imu.DebugString());
   }
 }
 
-TEST_F(RTKLocalizationTest, ComposeLocalizationMsg) {
+TEST_F(INSLocalizationTest, ComposeLocalizationMsg) {
   {
     apollo::localization::Gps gps;
     load_data("modules/localization/testdata/3_gps_1.pb.txt", &gps);
@@ -128,7 +128,7 @@ TEST_F(RTKLocalizationTest, ComposeLocalizationMsg) {
               &expected_result);
 
     apollo::localization::LocalizationEstimate localization;
-    rtk_localizatoin_->ComposeLocalizationMsg(gps, imu, &localization);
+    ins_localizatoin_->ComposeLocalizationMsg(gps, imu, &localization);
 
     EXPECT_EQ(1, localization.header().sequence_num());
     EXPECT_STREQ("localization", localization.header().module_name().c_str());

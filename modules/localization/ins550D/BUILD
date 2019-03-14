@@ -3,14 +3,14 @@ load("//tools:cpplint.bzl", "cpplint")
 package(default_visibility = ["//visibility:public"])
 
 cc_library(
-    name = "rtk_localization_component_lib",
+    name = "ins_localization_component_lib",
     srcs = [
-        "rtk_localization.cc",
-        "rtk_localization_component.cc",
+        "ins_localization.cc",
+        "ins_localization_component.cc",
     ],
     hdrs = [
-        "rtk_localization.h",
-        "rtk_localization_component.h",
+        "ins_localization.h",
+        "ins_localization_component.h",
     ],
     copts = ["-DMODULE_NAME=\\\"localization\\\""],
     deps = [
@@ -24,7 +24,7 @@ cc_library(
         "//modules/localization/proto:gps_proto",
         "//modules/localization/proto:imu_proto",
         "//modules/localization/proto:localization_proto",
-        "//modules/localization/proto:rtk_config_proto",
+        "//modules/localization/proto:ins_config_proto",
         "//modules/transform:transform_broadcaster_lib",
         "@eigen",
         "@gtest",
@@ -32,24 +32,24 @@ cc_library(
 )
 
 cc_binary(
-    name = "librtk_localization_component.so",
+    name = "libins_localization_component.so",
     linkopts = ["-shared"],
     linkstatic = False,
-    deps = [":rtk_localization_component_lib"],
+    deps = [":ins_localization_component_lib"],
 )
 
 cc_test(
-    name = "rtk_localization_test",
+    name = "ins_localization_test",
     size = "small",
     srcs = [
-        "rtk_localization_test.cc",
+        "ins_localization_test.cc",
     ],
     data = ["//modules/localization:localization_testdata"],
     deps = [
         "//cyber",
         "//modules/common/time",
         "//modules/common/util",
-        "//modules/localization/rtk:rtk_localization_component_lib",
+        "//modules/localization/ins550D:ins_localization_component_lib",
         "@gtest//:main",
     ],
 )

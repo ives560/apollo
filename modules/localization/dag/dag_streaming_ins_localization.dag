@@ -1,12 +1,12 @@
 # Define all coms in DAG streaming.
 module_config {
-    module_library : "/apollo/bazel-bin/modules/localization/rtk/librtk_localization_component.so"
+    module_library : "/apollo/bazel-bin/modules/localization/ins550D/libins_localization_component.so"
 
     components {
-      class_name : "RTKLocalizationComponent"
+      class_name : "INSLocalizationComponent"
       config {
-        name : "rtk_localization"
-        config_file_path : "/apollo/modules/localization/conf/rtk_localization.pb.txt"
+        name : "ins_localization"
+        config_file_path : "/apollo/modules/localization/conf/ins_localization.pb.txt"
         readers: [
           {
             channel: "/apollo/sensor/gnss/odometry"

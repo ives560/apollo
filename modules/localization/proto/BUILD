@@ -158,4 +158,16 @@ proto_library(
     srcs = ["rtk_config.proto"],
 )
 
+cc_proto_library(
+    name = "ins_config_proto",
+    deps = [
+        ":ins_config_proto_lib",
+    ],
+)
+
+proto_library(
+    name = "ins_config_proto_lib",
+    srcs = ["ins_config.proto"],
+)
+
 cpplint()

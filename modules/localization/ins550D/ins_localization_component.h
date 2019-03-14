@@ -28,18 +28,18 @@
 #include "modules/localization/proto/gps.pb.h"
 #include "modules/localization/proto/imu.pb.h"
 #include "modules/localization/proto/localization.pb.h"
-#include "modules/localization/proto/rtk_config.pb.h"
-#include "modules/localization/rtk/rtk_localization.h"
+#include "modules/localization/proto/ins_config.pb.h"
+#include "modules/localization/ins550D/ins_localization.h"
 #include "modules/transform/transform_broadcaster.h"
 
 namespace apollo {
 namespace localization {
 
-class RTKLocalizationComponent final
+class INSLocalizationComponent final
     : public cyber::Component<localization::Gps> {
  public:
-  RTKLocalizationComponent();
-  ~RTKLocalizationComponent() = default;
+  INSLocalizationComponent();
+  ~INSLocalizationComponent() = default;
 
   bool Init() override;
 
@@ -75,10 +75,10 @@ class RTKLocalizationComponent final
   std::string broadcast_tf_child_frame_id_ = "";
   std::unique_ptr<apollo::transform::TransformBroadcaster> tf2_broadcaster_;
 
-  std::unique_ptr<RTKLocalization> localization_;
+  std::unique_ptr<INSLocalization> localization_;
 };
 
-CYBER_REGISTER_COMPONENT(RTKLocalizationComponent);
+CYBER_REGISTER_COMPONENT(INSLocalizationComponent);
 
 }  // namespace localization
 }  // namespace apollo
