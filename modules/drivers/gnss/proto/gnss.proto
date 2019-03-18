@@ -102,8 +102,8 @@ message GnssRange {
   repeated RangeInfo ranges = 3;
 }
 
-// gnss raw data
+// gnss原始数据
 message RawData {
   optional apollo.common.Header header = 1;
-  optional bytes data = 2;
+  optional bytes data = 2;    // bytes 是 protobuf 基本数据类型
 }
