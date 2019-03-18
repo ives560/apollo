@@ -191,6 +191,10 @@ function setup_device() {
   if [ ! -e /dev/nvidia-uvm-tools ];then
     sudo mknod -m 666 /dev/nvidia-uvm-tools c 243 1
   fi
+
+  # enable gnss serial rw
+  sudo chmod a+rw /dev/ttyS0
+  sudo chmod a+rw /dev/ttyS1
 }
 
 function decide_task_dir() {
