@@ -49,7 +49,7 @@ void TcpStream::open() {
   int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
   if (fd < 0) {
     // error
-    AERROR << "create socket failed, errno: " << errno << ", "
+    AERROR << "create socket failed, errno: " << errno << ", "    //Linux中系统调用的错误都存储于 errno中，errno由操作系统维护，存储就近发生的错误
            << strerror(errno);
     return;
   }
