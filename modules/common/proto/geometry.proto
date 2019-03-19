@@ -18,8 +18,7 @@ message PointENU {
                                           // meters.
 }
 
-// A point in the global reference frame. Similar to PointENU, PointLLH allows
-// omitting the height field for representing a 2D location.
+// 全局参考系中的一个点。与PointENU类似，PointLLH允许省略表示2D位置的height字段。
 message PointLLH {
   // Longitude in degrees, ranging from -180 to 180.
   optional double lon = 1 [default = nan];
