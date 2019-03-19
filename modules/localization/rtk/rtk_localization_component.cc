@@ -95,12 +95,12 @@ bool RTKLocalizationComponent::Proc(
 
   if (localization_->IsServiceStarted()) {
     LocalizationEstimate localization;
-    localization_->GetLocalization(&localization);
+    localization_->GetLocalization(&localization);  //获取 LocalizationEstimate 消息
     LocalizationStatus localization_status;
     localization_->GetLocalizationStatus(&localization_status);
 
     // publish localization messages
-    PublishPoseBroadcastTopic(localization);
+    PublishPoseBroadcastTopic(localization);  //发送 LocalizationEstimate 消息
     PublishPoseBroadcastTF(localization);
     PublishLocalizationStatus(localization_status);
     ADEBUG << "[OnTimer]: Localization message publish success!";

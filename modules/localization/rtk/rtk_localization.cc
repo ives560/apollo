@@ -77,7 +77,7 @@ void RTKLocalization::GpsCallback(
   }
 
   // publish localization messages
-  PrepareLocalizationMsg(*gps_msg, &last_localization_result_,
+  PrepareLocalizationMsg(*gps_msg, &last_localization_result_,  //计算返回 LocalizationEstimate 消息格式 last_localization_result_ 
                          &last_localization_status_result_);
   service_started_ = true;
 
@@ -169,6 +169,7 @@ void RTKLocalization::RunWatchDog(double gps_timestamp) {
   return;
 }
 
+//准备 LocalizationEstimate 消息
 void RTKLocalization::PrepareLocalizationMsg(
     const localization::Gps &gps_msg, LocalizationEstimate *localization,
     LocalizationStatus *localization_status) {
@@ -176,7 +177,7 @@ void RTKLocalization::PrepareLocalizationMsg(
   double gps_time_stamp = gps_msg.header().timestamp_sec();
   CorrectedImu imu_msg;
   FindMatchingIMU(gps_time_stamp, &imu_msg);
-  ComposeLocalizationMsg(gps_msg, imu_msg, localization);
+  ComposeLocalizationMsg(gps_msg, imu_msg, localization); //合成定位消息localization
 
   drivers::gnss::InsStat gps_status;
   FindNearestGpsStatus(gps_time_stamp, &gps_status);
@@ -231,6 +232,7 @@ void RTKLocalization::FillLocalizationStatusMsg(
   }
 }
 
+//合成定位消息localization
 void RTKLocalization::ComposeLocalizationMsg(
     const localization::Gps &gps_msg,
     const localization::CorrectedImu &imu_msg,
