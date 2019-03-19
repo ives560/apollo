@@ -11,8 +11,7 @@ message InsStat {
   optional uint32 pos_type = 3;
 }
 
-// Solution from a inertial navigation system (INS), which usually fuses GNSS
-// and IMU measurements.
+// 惯性导航系统(INS)的解决方案，通常融合GNSS和IMU测量。
 message Ins {
   optional apollo.common.Header header = 1;
 
@@ -43,11 +42,11 @@ message Ins {
   // Roll/pitch/yaw in radians.
   optional apollo.common.Point3D euler_angles = 5;
   // East/north/up in meters per second.
-  optional apollo.common.Point3D linear_velocity = 6;
+  optional apollo.common.Point3D linear_velocity = 6;   //线速度
   // Around forward/left/up axes in radians per second.
-  optional apollo.common.Point3D angular_velocity = 7;
+  optional apollo.common.Point3D angular_velocity = 7;  //角速度
   // Forward/left/up in meters per square second.
-  optional apollo.common.Point3D linear_acceleration = 8;
+  optional apollo.common.Point3D linear_acceleration = 8;   //线性加速度
 
   // The size of a covariance matrix field may be
   //  3: then the elements are xx, yy, zz.
