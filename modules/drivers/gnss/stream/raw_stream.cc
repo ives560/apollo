@@ -63,6 +63,7 @@ std::string getLocalTimeFileStr(const std::string &gpsbin_folder) {
   return local_time_file_str;
 }
 
+//根据配置消息config::Stream创建 Stream
 Stream *create_stream(const config::Stream &sd) {
   switch (sd.type_case()) {
     case config::Stream::kSerial:
@@ -135,12 +136,12 @@ Stream *create_stream(const config::Stream &sd) {
 RawStream::RawStream(const config::Config &config,
                      const std::shared_ptr<apollo::cyber::Node> &node)
     : config_(config), node_(node) {
-  data_parser_ptr_.reset(new DataParser(config_, node_));
+  data_parser_ptr_.reset(new DataParser(config_, node_));   //根据配置文件创建数据解析器 默认为NOVATEL_BINARY
   rtcm_parser_ptr_.reset(new RtcmParser(config_, node_));
 }
 
 RawStream::~RawStream() {
-  this->Logout();
+  this->Logout(); //根据配置文件获取logout_commands命令，写入串口
   this->Disconnect();
   if (gpsbin_stream_ != nullptr) {
     gpsbin_stream_->close();
@@ -150,6 +151,9 @@ RawStream::~RawStream() {
   }
   if (rtk_thread_ptr_ != nullptr && rtk_thread_ptr_->joinable()) {
     rtk_thread_ptr_->join();
+  }
+    if (gpgga_thread_ptr_ != nullptr && gpgga_thread_ptr_->joinable()) {
+    gpgga_thread_ptr_->join();
   }
 }
 
@@ -178,12 +182,12 @@ bool RawStream::Init() {
     AINFO << "Error: Config file must provide the data stream.";
     return false;
   }
-  s = create_stream(config_.data());
+  s = create_stream(config_.data());    //根据配置文件创建数据流
   if (s == nullptr) {
     AERROR << "Failed to create data stream.";
     return false;
   }
-  data_stream_.reset(s);
+  data_stream_.reset(s);              //创建成功付值给 data_stream_
 
   Status *status = new Status();
   if (!status) {
@@ -193,7 +197,7 @@ bool RawStream::Init() {
   data_stream_status_.reset(status);
 
   if (config_.has_command()) {
-    s = create_stream(config_.command());
+    s = create_stream(config_.command()); 
     if (s == nullptr) {
       AERROR << "Failed to create command stream.";
       return false;
@@ -212,12 +216,12 @@ bool RawStream::Init() {
   }
 
   if (config_.has_rtk_from()) {
-    s = create_stream(config_.rtk_from());
+    s = create_stream(config_.rtk_from());  //根据配置文件创建获取RTK差分数据流
     if (s == nullptr) {
       AERROR << "Failed to create rtk_from stream.";
       return false;
     }
-    in_rtk_stream_.reset(s);
+    in_rtk_stream_.reset(s);  //创建成功付值给 in_rtk_stream_
 
     if (config_.rtk_from().has_push_location()) {
       push_location_ = config_.rtk_from().push_location();
@@ -231,12 +235,12 @@ bool RawStream::Init() {
     in_rtk_stream_status_.reset(status);
 
     if (config_.has_rtk_to()) {
-      s = create_stream(config_.rtk_to());
+      s = create_stream(config_.rtk_to());//根据配置文件创建数据流，配置将RTK差分数据发送到接收器。
       if (s == nullptr) {
         AERROR << "Failed to create rtk_to stream.";
         return false;
       }
-      out_rtk_stream_.reset(s);
+      out_rtk_stream_.reset(s);           //创建成功付值给 out_rtk_stream_
 
       status = new Status();
       if (!status) {
@@ -249,6 +253,7 @@ bool RawStream::Init() {
       out_rtk_stream_status_ = data_stream_status_;
     }
 
+    //判断配置文件中是否存在rtk_solution_type参数
     if (config_.has_rtk_solution_type()) {
       if (config_.rtk_solution_type() ==
           config::Config::RTK_SOFTWARE_SOLUTION) {
@@ -271,6 +276,7 @@ bool RawStream::Init() {
     return false;
   }
 
+//根据配置文件获取login_commands命令，写入串口
   if (!Login()) {
     AERROR << "gnss driver login failed.";
     return false;
@@ -297,8 +303,9 @@ bool RawStream::Init() {
 }
 
 void RawStream::Start() {
-  data_thread_ptr_.reset(new std::thread(&RawStream::DataSpin, this));
-  rtk_thread_ptr_.reset(new std::thread(&RawStream::RtkSpin, this));
+  data_thread_ptr_.reset(new std::thread(&RawStream::DataSpin, this));  //创建读取惯导组合数据线程
+  rtk_thread_ptr_.reset(new std::thread(&RawStream::RtkSpin, this));  //创建读取千寻差分定位数据并发给导远232串口
+  gpgga_thread_ptr_.reset(new std::thread(&RawStream::GpggaSpin, this));  //创建读取gpgga数据线程
   if (config_.has_wheel_parameters()) {
     wheel_velocity_timer_.reset(new cyber::Timer(
         1000, [this]() { this->OnWheelVelocityTimer(); }, false));
@@ -410,6 +417,7 @@ bool RawStream::Disconnect() {
   return true;
 }
 
+//根据配置文件获取login_commands命令，写入串口
 bool RawStream::Login() {
   std::vector<std::string> login_data;
   for (const auto &login_command : config_.login_commands()) {
@@ -421,7 +429,7 @@ bool RawStream::Login() {
   }
   data_stream_->RegisterLoginData(login_data);
 
-  if (config_.has_wheel_parameters()) {
+  if (config_.has_wheel_parameters()) {   // 配置文件中存在wheel_parameters参数，写入串口
     AINFO << "Write command: " << config_.wheel_parameters();
     command_stream_->write(config_.wheel_parameters());
   }
@@ -429,6 +437,7 @@ bool RawStream::Login() {
   return true;
 }
 
+//根据配置文件获取logout_commands命令，写入串口
 bool RawStream::Logout() {
   for (const auto &logout_command : config_.logout_commands()) {
     data_stream_->write(logout_command);
@@ -471,11 +480,12 @@ void RawStream::StreamStatusCheck() {
   }
 }
 
+//读取数据线程回调函数
 void RawStream::DataSpin() {
   common::util::FillHeader("gnss", &stream_status_);
   stream_writer_->Write(std::make_shared<StreamStatus>(stream_status_));
   while (cyber::OK()) {
-    size_t length = data_stream_->read(buffer_, BUFFER_SIZE);
+    size_t length = data_stream_->read(buffer_, BUFFER_SIZE); // 从导远422串口读取惯导组合数据
     if (length > 0) {
       std::shared_ptr<RawData> msg_pub = std::make_shared<RawData>();
       if (!msg_pub) {
@@ -484,15 +494,29 @@ void RawStream::DataSpin() {
       }
       msg_pub->set_data(reinterpret_cast<const char *>(buffer_), length);
       raw_writer_->Write(msg_pub);
-      data_parser_ptr_->ParseRawData(msg_pub->data());
-      if (push_location_) {
-        PushGpgga(length);
-      }
+      data_parser_ptr_->ParseRawData(msg_pub->data());  //处理从导远422串口接收到的惯导组合数据 默认为NOVATEL_BINARY， 
     }
     StreamStatusCheck();
   }
 }
 
+//创建读取发送gpgga数据线程
+void RawStream::GpggaSpin() {
+  if (in_rtk_stream_ == nullptr) {
+    return;
+  }
+  while (cyber::OK()) {
+    size_t length = in_rtk_stream_->read(buffer_gpgga_, BUFFER_SIZE); // 从导远232串口读取GPGGA数据
+    if (length > 0) {
+      if (push_location_) {
+        PushGpgga(length);  //向千寻服务发送 GPGGA 消息
+      }
+    }
+
+  }
+}
+
+//获取RTK差分数据线程回调函数
 void RawStream::RtkSpin() {
   if (in_rtk_stream_ == nullptr) {
     return;
@@ -507,7 +531,7 @@ void RawStream::RtkSpin() {
         if (out_rtk_stream_ == nullptr) {
           continue;
         }
-        size_t ret = out_rtk_stream_->write(buffer_rtk_, length);
+        size_t ret = out_rtk_stream_->write(buffer_rtk_, length); //发送从千寻获取的RTK差分数据给导远232串口,out_rtk_stream_ = data_stream_;
         if (ret != length) {
           AERROR << "Expect write out rtk stream bytes " << length
                  << " but got " << ret;
@@ -517,6 +541,7 @@ void RawStream::RtkSpin() {
   }
 }
 
+//发送RTK差分数据
 void RawStream::PublishRtkData(const size_t length) {
   std::shared_ptr<RawData> rtk_msg = std::make_shared<RawData>();
   CHECK_NOTNULL(rtk_msg);
@@ -525,20 +550,21 @@ void RawStream::PublishRtkData(const size_t length) {
   rtcm_parser_ptr_->ParseRtcmData(rtk_msg->data());
 }
 
+//发送 GPGGA 消息
 void RawStream::PushGpgga(const size_t length) {
   if (!in_rtk_stream_) {
     return;
   }
 
-  char *gpgga = strstr(reinterpret_cast<char *>(buffer_), "$GPGGA");
+  char *gpgga = strstr(reinterpret_cast<char *>(buffer_gpgga_), "$GPGGA");
   if (gpgga) {
     char *p = strchr(gpgga, '*');
     if (p) {
       p += 5;
-      if (size_t(p - reinterpret_cast<char *>(buffer_)) <= length) {
+      if (size_t(p - reinterpret_cast<char *>(buffer_gpgga_)) <= length) {
         AINFO_EVERY(5) << "Push gpgga.";
         in_rtk_stream_->write(reinterpret_cast<uint8_t *>(gpgga),
-                              reinterpret_cast<uint8_t *>(p) - buffer_);
+                              reinterpret_cast<uint8_t *>(p) - buffer_gpgga_);
       }
     }
   }

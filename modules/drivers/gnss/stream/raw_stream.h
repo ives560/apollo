@@ -52,6 +52,7 @@ class RawStream {
  private:
   void DataSpin();
   void RtkSpin();
+  void GpggaSpin();
   bool Connect();
   bool Disconnect();
   bool Login();
@@ -68,6 +69,7 @@ class RawStream {
   static constexpr size_t BUFFER_SIZE = 2048;
   uint8_t buffer_[BUFFER_SIZE] = {0};
   uint8_t buffer_rtk_[BUFFER_SIZE] = {0};
+  uint8_t buffer_gpgga_[BUFFER_SIZE] = {0};
 
   std::shared_ptr<Stream> data_stream_;
   std::shared_ptr<Stream> command_stream_;
@@ -89,6 +91,7 @@ class RawStream {
 
   StreamStatus stream_status_;
   std::unique_ptr<std::thread> data_thread_ptr_;
+  std::unique_ptr<std::thread> gpgga_thread_ptr_;  //读取gpgga数据线程
   std::unique_ptr<std::thread> rtk_thread_ptr_;
   std::unique_ptr<DataParser> data_parser_ptr_;
   std::unique_ptr<RtcmParser> rtcm_parser_ptr_;

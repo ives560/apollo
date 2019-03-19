@@ -52,11 +52,14 @@ class Parser {
  public:
   // A general pointer to a protobuf message.
   using MessagePtr = ::google::protobuf::Message *;
-  // Return a pointer to a NovAtel parser. The caller should take ownership.
+  // 返回指向NovAtel解析器的指针。调用者应该拥有所有权。
   static Parser *CreateNovatel(const config::Config &config);
 
   // Return a pointer to rtcm v3 parser. The caller should take ownership.
   static Parser *CreateRtcmV3(bool is_base_station = false);
+
+  //导远ins550d
+  static Parser* createINS550D(const config::Config &config);
 
   virtual ~Parser() {}
 

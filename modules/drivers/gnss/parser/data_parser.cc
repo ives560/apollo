@@ -53,10 +53,11 @@ static const boost::array<double, 36> POSE_COVAR = {
     0, 0, 0, 0.01, 0, 0, 0, 0, 0, 0, 0.01, 0, 0, 0, 0, 0, 0, 0.01};
 
 Parser *CreateParser(config::Config config, bool is_base_station = false) {
-  switch (config.data().format()) {
+  switch (config.data().format()) {     // 配置文件 conf/gnss_conf.pb.txt
     case config::Stream::NOVATEL_BINARY:
       return Parser::CreateNovatel(config);
-
+    case config::Stream::INS550D_BINARY:      //导远INS550D
+        return Parser::createINS550D(config);
     default:
       return nullptr;
   }
@@ -104,7 +105,7 @@ bool DataParser::Init() {
   gnssstatus_writer_->Write(std::make_shared<GnssStatus>(gnss_status_));
 
   AINFO << "Creating data parser of format: " << config_.data().format();
-  data_parser_.reset(CreateParser(config_, false));
+  data_parser_.reset(CreateParser(config_, false));   //根据配置文件创建数据解析器
   if (!data_parser_) {
     AFATAL << "Failed to create data parser.";
     return false;
@@ -120,14 +121,14 @@ void DataParser::ParseRawData(const std::string &msg) {
     return;
   }
 
-  data_parser_->Update(msg);
+  data_parser_->Update(msg);    //将数据保存到数据解析器
   Parser::MessageType type;
   MessagePtr msg_ptr;
 
   while (cyber::OK()) {
-    type = data_parser_->GetMessage(&msg_ptr);
+    type = data_parser_->GetMessage(&msg_ptr);    //获取处理后的消息指针msg_ptr, 返回消息类型type
     if (type == Parser::MessageType::NONE) break;
-    DispatchMessage(type, msg_ptr);
+    DispatchMessage(type, msg_ptr);   //根据消息类型type，发送消息msg_ptr
   }
 }
 
@@ -173,6 +174,7 @@ void DataParser::CheckGnssStatus(::apollo::drivers::gnss::Gnss *gnss) {
   gnssstatus_writer_->Write(std::make_shared<GnssStatus>(gnss_status_));
 }
 
+//根据消息类型type，发送消息msg_ptr
 void DataParser::DispatchMessage(Parser::MessageType type, MessagePtr message) {
   switch (type) {
     case Parser::MessageType::GNSS:
@@ -189,8 +191,8 @@ void DataParser::DispatchMessage(Parser::MessageType type, MessagePtr message) {
 
     case Parser::MessageType::INS:
       CheckInsStatus(As<::apollo::drivers::gnss::Ins>(message));
-      PublishCorrimu(message);
-      PublishOdometry(message);
+      PublishCorrimu(message);    // 将message消息指针转为apollo::localization::CorrectedImu消息发布
+      PublishOdometry(message);   // 将message消息指针转为apollo::localization::Gps消息发布
       break;
 
     case Parser::MessageType::INS_STAT:
@@ -245,6 +247,7 @@ void DataParser::PublishImu(const MessagePtr message) {
   rawimu_writer_->Write(raw_imu);
 }
 
+// 将message消息指针转为apollo::localization::Gps消息发布
 void DataParser::PublishOdometry(const MessagePtr message) {
   Ins *ins = As<Ins>(message);
   auto gps = std::make_shared<Gps>();
@@ -281,7 +284,7 @@ void DataParser::PublishOdometry(const MessagePtr message) {
   gps_msg->mutable_linear_velocity()->set_y(ins->linear_velocity().y());
   gps_msg->mutable_linear_velocity()->set_z(ins->linear_velocity().z());
 
-  gps_writer_->Write(gps);
+  gps_writer_->Write(gps);      // 发布 apollo::localization::Gps 消息
   if (config_.tf().enable()) {
     TransformStamped transform;
     GpsToTransformStamped(gps, &transform);
@@ -289,6 +292,7 @@ void DataParser::PublishOdometry(const MessagePtr message) {
   }
 }
 
+// 将message消息指针转为apollo::localization::CorrectedImu消息发布
 void DataParser::PublishCorrimu(const MessagePtr message) {
   Ins *ins = As<Ins>(message);
   auto imu = std::make_shared<CorrectedImu>();
@@ -310,7 +314,7 @@ void DataParser::PublishCorrimu(const MessagePtr message) {
   imu_msg->mutable_euler_angles()->set_z(ins->euler_angles().z() -
                                          90 * DEG_TO_RAD_LOCAL);
 
-  corrimu_writer_->Write(imu);
+  corrimu_writer_->Write(imu);    // 发布 apollo::localization::CorrectedImu 消息
 }
 
 void DataParser::PublishEphemeris(const MessagePtr message) {

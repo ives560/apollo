@@ -10,10 +10,13 @@ message Stream {
     RTCM_V3 = 3;
 
     NOVATEL_TEXT = 10;
-    NOVATEL_BINARY = 11;
+    NOVATEL_BINARY = 11;    //GPS接收器数据格式定义
 
     UBLOX_TEXT = 20;
     UBLOX_BINARY = 21;
+
+    INS550D_TEXT = 30;    //导远INS550D
+    INS550D_BINARY = 31;
   }
   optional Format format = 1;
 
@@ -83,19 +86,16 @@ message TF {
 }
 
 message Config {
-  // The driver reads data from this port. This port should always be provided.
+  // 驱动程序从这个端口读取数据。应该始终提供此端口。
   optional Stream data = 1;
 
-  // If given, the driver sends commands to this port. If not given, the driver
-  // sends commands to the data port.
+  // 如果给定，驱动程序将向该端口发送命令。如果没有给出，驱动程序将向数据端口发送命令。
   optional Stream command = 2;
 
-  // The driver gets RTK correction data from this remote port. Usually this is
-  // an NTRIP port.
+  // 驱动程序从这个远程端口获取RTK校正数据。通常这是一个NTRIP端口。
   optional Stream rtk_from = 3;
 
-  // If given, the driver sends RTK correction data to this port. If not given,
-  // the driver sends RTK correction data to the data port.
+  // 如果给定，驱动程序将RTK校正数据发送到该端口。如果没有给出，驱动程序将RTK校正数据发送到数据端口。
   optional Stream rtk_to = 4;
 
   repeated bytes login_commands = 5;

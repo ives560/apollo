@@ -1,0 +1,41 @@
+data {
+    format: INS550D_BINARY
+    serial {
+        device: "/dev/ttyS2"    #422 组合惯导数据
+        baud_rate: 115200
+    }
+}
+
+rtk_from {
+    format: RTCM_V3
+    ntrip {
+        address: "60.205.8.49"
+        port: 8002
+        mount_point: "RTCM32_GGB"
+        user: "qxkloj001"
+        password: "5ce4bbf"
+        timeout_s: 5
+    }
+    push_location: true
+}
+
+rtk_to {
+    format: INS550D_BINARY
+    serial {
+        device: "/dev/ttyS0"       #232 GGA串口
+        baud_rate: 115200
+    }
+}
+
+rtk_solution_type: RTK_RECEIVER_SOLUTION
+imu_type: ADIS16488
+proj4_text: "+proj=utm +zone=10 +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+
+tf {
+    frame_id: "world"
+    child_frame_id: "novatel"
+    enable: true
+}
+
+gpsbin_folder: "/apollo/data/gpsbin"
+
