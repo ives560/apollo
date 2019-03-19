@@ -193,8 +193,8 @@ function setup_device() {
   fi
 
   # enable gnss serial rw
-  sudo chmod a+rw /dev/ttyS0
-  sudo chmod a+rw /dev/ttyS1
+  sudo chmod a+rw /dev/ttyS0    #232 GGA串口
+  sudo chmod a+rw /dev/ttyS2    #422 组合惯导串口
 }
 
 function decide_task_dir() {
