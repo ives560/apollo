@@ -288,6 +288,7 @@ size_t SerialStream::read(uint8_t* buffer, size_t max_length) {
 
   while (max_length > 0) {
     bytes_current_read = ::read(fd_, buffer, max_length);
+    wait_readable(1000);
     if (bytes_current_read < 0) {
       switch (errno) {
         case EAGAIN:

@@ -200,10 +200,10 @@ size_t NtripStream::read(uint8_t* buffer, size_t max_length) {
   }
 
   // timeout detect
-  if ((cyber::Time::Now().ToSecond() - data_active_s_) > timeout_s_) {
-    AINFO << "Ntrip timeout.";
-    Reconnect();
-  }
+  //if ((cyber::Time::Now().ToSecond() - data_active_s_) > timeout_s_) {
+  //  AINFO << "Ntrip timeout.";
+  //  Reconnect();
+  //}
 
   return ret;
 }

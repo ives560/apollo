@@ -108,6 +108,8 @@ if (buffer_[0] == 0xBD && buffer_[1] == 0xDB && buffer_[2] == 0x0B)
         checksum = checksum ^ buffer_[i];
     }
 
+    AERROR << "GetMessage "<< "checksum=" <<checksum << "buffer_ = "<<buffer_[DataLen - 1];
+
     if (buffer_[DataLen - 1] == checksum)
     {
         buf = (uint32_t)(buffer_[3] + (buffer_[4] << 8));
@@ -193,7 +195,7 @@ if (buffer_[0] == 0xBD && buffer_[1] == 0xDB && buffer_[2] == 0x0B)
         ins_.mutable_linear_acceleration()->set_y(ay);
         ins_.mutable_linear_acceleration()->set_z(az);
 
-        
+
         return MessageType::INS;
         
         }
