@@ -7,7 +7,7 @@
         "request": "launch",
         // You can change the "planning" to your module name, but it should be 
         // same as those in gdbserver of the docker container. 
-        "program": "${workspaceRoot}/bazel-bin/modules/planning/planning",
+        "program": "${workspaceRoot}/bazel-bin/cyber/mainboard",
         // You can change "localhost:1111" to another "IP:port" name, but it 
         // should be same as those in gdbserver of the docker container.  
         "miDebuggerServerAddress": "localhost:1111",
@@ -16,7 +16,7 @@
         // "start gdbserver"), but the module name and the port 
         // number should be consistent with this file.        
         "preLaunchTask": "start gdbserver",
-        "args": [],
+        "args": ["-d","modules/drivers/gnss/dag/gnss.dag"],
         "stopAtEntry": false,
         "cwd": "${workspaceRoot}",
         "environment": [],

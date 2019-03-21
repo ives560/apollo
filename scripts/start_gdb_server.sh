@@ -62,15 +62,16 @@ PROCESS_ID=$(pgrep -o -x "${MODULE_NAME}")
 #echo ${PROCESS_ID}
 
 # If the moudle is not started, start it first. 
-if [ -z ${PROCESS_ID} ]; then       
+#if [ -z ${PROCESS_ID} ]; then       
   #echo "The '${MODULE_NAME}' module is not started, please start it in the dreamview first. "  
   #exit 1 
 
   # run function from apollo_base.sh
   # run command_name module_name
-  run ${MODULE_NAME} "$@"
+#  run ${MODULE_NAME} "$@"
 
-  PROCESS_ID=$(pgrep -o -x "${MODULE_NAME}")
-fi 
+#  PROCESS_ID=$(pgrep -o -x "${MODULE_NAME}")
+#fi 
 
-sudo gdbserver :${PORT_NUM} --attach ${PROCESS_ID}
+#sudo gdbserver :${PORT_NUM} bazel-bin/cyber/mainboard -p ${PROCESS_ID}
+sudo gdbserver :${PORT_NUM} bazel-bin/cyber/mainboard -d modules/drivers/${MODULE_NAME}/dag/${MODULE_NAME}.dag
