@@ -53,9 +53,10 @@ class OpenSpaceTrajectoryProvider : public TrajectoryOptimizer {
 
   void Stop();
 
+  void Restart();
+
  private:
-  apollo::common::Status Process(
-      DiscretizedTrajectory* const trajectory_data) override;
+  apollo::common::Status Process() override;
 
   void GenerateTrajectoryThread();
 
@@ -70,6 +71,8 @@ class OpenSpaceTrajectoryProvider : public TrajectoryOptimizer {
 
   void ReuseLastFrameResult(const Frame* last_frame,
                             DiscretizedTrajectory* const trajectory_data);
+
+  void ReuseLastFrameDebug(const Frame* last_frame);
 
  private:
   bool thread_init_flag_ = false;

@@ -29,10 +29,14 @@ DEFINE_bool(enable_collision_detection, false,
             "enable collision detection in planning");
 
 // scenario related
-DEFINE_string(
-    scenario_lane_follow_config_file,
-    "/apollo/modules/planning/conf/scenario/lane_follow_config.pb.txt",
-    "The lane follow scenario configuration file");
+DEFINE_string(scenario_bare_intersection_unprotected_config_file,
+              "/apollo/modules/planning/conf/"
+              "scenario/bare_intersection_unprotected_config.pb.txt",
+              "The bare_intersection_unprotected scenario configuration file");
+DEFINE_string(scenario_lane_follow_config_file,
+              "/apollo/modules/planning/conf/"
+              "scenario/lane_follow_config.pb.txt",
+              "The lane follow scenario configuration file");
 DEFINE_string(scenario_side_pass_config_file,
               "/apollo/modules/planning/conf/scenario/side_pass_config.pb.txt",
               "side pass scenario configuration file");
@@ -70,9 +74,11 @@ DEFINE_bool(enable_scenario_side_pass_multiple_parked_obstacles, true,
             "enable ADC to side-pass multiple parked obstacles without"
             "worrying if the obstacles are blocked by others.");
 
+DEFINE_bool(enable_scenario_bare_intersection, false,
+            "enable bare_intersection scenarios in planning");
 DEFINE_bool(enable_scenario_stop_sign, true,
             "enable stop_sign scenarios in planning");
-DEFINE_bool(enable_scenario_traffic_light, false,
+DEFINE_bool(enable_scenario_traffic_light, true,
             "enable traffic_light scenarios in planning");
 
 DEFINE_string(traffic_rule_config_filename,
@@ -443,7 +449,7 @@ DEFINE_bool(open_space_planner_switchable, false,
 DEFINE_bool(use_dual_variable_warm_start, true,
             "whether or not enable dual variable warm start ");
 
-DEFINE_bool(use_gear_shift_trajectory, true,
+DEFINE_bool(use_gear_shift_trajectory, false,
             "allow some time for the vehicle to shift gear");
 
 DEFINE_bool(use_osqp_optimizer_for_qp_st, false,
@@ -497,5 +503,13 @@ DEFINE_bool(enable_parallel_hybrid_a, false,
             "True to enable hybrid a* parallel implementation.");
 DEFINE_bool(enable_parallel_open_space_smoother, false,
             "True to enable open space smoother parallel implementation.");
-DEFINE_bool(enable_cuda, false,
-            "True to enable cuda parallel implementation.");
+
+DEFINE_double(vehicle_low_speed_threshold, 1.0, "Vehicle low speed threshold.");
+
+DEFINE_bool(enable_cuda, false, "True to enable cuda parallel implementation.");
+
+DEFINE_bool(enable_nonscenario_side_pass, false,
+            "True to enable side pass without scenario management");
+
+DEFINE_bool(enable_soft_speed_limit, false,
+            "True to set soft speed limit guided by path optimization result");

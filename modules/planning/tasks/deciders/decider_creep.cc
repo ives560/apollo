@@ -43,9 +43,20 @@ Status DeciderCreep::Process(Frame* frame,
   CHECK_NOTNULL(frame);
   CHECK_NOTNULL(reference_line_info);
 
-  const double stop_sign_overlap_end_s =
-      PlanningContext::GetScenarioInfo()->current_stop_sign_overlap.end_s;
-  BuildStopDecision(stop_sign_overlap_end_s, frame, reference_line_info);
+  double stop_sign_overlap_end_s = 0.0;
+  if (!PlanningContext::GetScenarioInfo()
+           ->current_stop_sign_overlap.object_id.empty()) {
+    stop_sign_overlap_end_s =
+        PlanningContext::GetScenarioInfo()->current_stop_sign_overlap.end_s;
+  } else if (PlanningContext::GetScenarioInfo()
+                 ->current_traffic_light_overlaps.size() > 0) {
+    stop_sign_overlap_end_s = PlanningContext::GetScenarioInfo()
+                                  ->current_traffic_light_overlaps[0]
+                                  .end_s;
+  }
+  if (stop_sign_overlap_end_s > 0.0) {
+    BuildStopDecision(stop_sign_overlap_end_s, frame, reference_line_info);
+  }
 
   return Status::OK();
 }
@@ -105,8 +116,8 @@ bool DeciderCreep::BuildStopDecision(const double stop_sign_overlap_end_s,
 bool DeciderCreep::CheckCreepDone(const Frame& frame,
                                   const ReferenceLineInfo& reference_line_info,
                                   const double stop_sign_overlap_end_s,
-                                  const double wait_time,
-                                  const double timeout) {
+                                  const double wait_time_sec,
+                                  const double timeout_sec) {
   const auto& creep_config = config_.decider_creep_config();
   bool creep_done = false;
   double creep_stop_s =
@@ -115,7 +126,7 @@ bool DeciderCreep::CheckCreepDone(const Frame& frame,
   const double distance =
       creep_stop_s - reference_line_info.AdcSlBoundary().end_s();
   if (distance < creep_config.max_valid_stop_distance() ||
-      wait_time >= timeout) {
+      wait_time_sec >= timeout_sec) {
     bool all_far_away = true;
     for (auto* obstacle :
          reference_line_info.path_decision().obstacles().Items()) {

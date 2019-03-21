@@ -163,6 +163,8 @@ TEST(darkSCNNLanePostprocessor, camera_lane_postprocessor_point_test) {
   // initilize visualizer and set homography for lane_postprocessor
   Visualizer visualize_;
   double pitch_adj = 0;
+  double yaw_adj = 0;
+  double roll_adj = 0;
   std::string visual_camera = "onsemi_obstacle";
   std::map<std::string, Eigen::Matrix4d> extrinsic_map;
   std::map<std::string, Eigen::Matrix3f> intrinsic_map;
@@ -186,7 +188,7 @@ TEST(darkSCNNLanePostprocessor, camera_lane_postprocessor_point_test) {
 
   EXPECT_TRUE(visualize_.Init_all_info_single_camera(
       visual_camera, intrinsic_map, extrinsic_map, ex_lidar2imu, pitch_adj,
-      calibration_service_init_options.image_height,
+      yaw_adj, roll_adj, calibration_service_init_options.image_height,
       calibration_service_init_options.image_width));
   homography_im2car_ = visualize_.homography_im2car();
   lane_postprocessor->SetIm2CarHomography(homography_im2car_);

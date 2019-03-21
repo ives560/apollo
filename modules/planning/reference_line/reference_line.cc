@@ -31,6 +31,7 @@
 #include "modules/common/math/cartesian_frenet_conversion.h"
 #include "modules/common/math/linear_interpolation.h"
 #include "modules/common/math/vec2d.h"
+#include "modules/common/util/map_util.h"
 #include "modules/common/util/string_util.h"
 #include "modules/common/util/util.h"
 #include "modules/planning/common/planning_gflags.h"
@@ -41,6 +42,7 @@ namespace planning {
 using MapPath = hdmap::Path;
 using apollo::common::SLPoint;
 using apollo::common::math::CartesianFrenetConverter;
+using apollo::common::math::Vec2d;
 using apollo::common::util::DistanceXY;
 using apollo::hdmap::InterpolatedIndex;
 
@@ -206,6 +208,26 @@ common::FrenetFramePoint ReferenceLine::GetFrenetPoint(
   frenet_frame_point.set_dl(dl);
   frenet_frame_point.set_ddl(ddl);
   return frenet_frame_point;
+}
+
+std::pair<std::array<double, 3>, std::array<double, 3> >
+ReferenceLine::ToFrenetFrame(const common::TrajectoryPoint& traj_point) const {
+  CHECK(!reference_points_.empty());
+
+  common::SLPoint sl_point;
+  XYToSL({traj_point.path_point().x(), traj_point.path_point().y()}, &sl_point);
+
+  std::array<double, 3> s_condition;
+  std::array<double, 3> l_condition;
+  ReferencePoint ref_point = GetReferencePoint(sl_point.s());
+  CartesianFrenetConverter::cartesian_to_frenet(
+      sl_point.s(), ref_point.x(), ref_point.y(), ref_point.heading(),
+      ref_point.kappa(), ref_point.dkappa(), traj_point.path_point().x(),
+      traj_point.path_point().y(), traj_point.v(), traj_point.a(),
+      traj_point.path_point().theta(), traj_point.path_point().kappa(),
+      &s_condition, &l_condition);
+
+  return std::make_pair(s_condition, l_condition);
 }
 
 ReferencePoint ReferenceLine::GetNearestReferencePoint(const double s) const {
@@ -464,10 +486,9 @@ void ReferenceLine::GetLaneFromS(
   CHECK_NOTNULL(lanes);
   auto ref_point = GetReferencePoint(s);
   std::unordered_set<hdmap::LaneInfoConstPtr> lane_set;
-  for (auto& lane_waypoint : ref_point.lane_waypoints()) {
-    if (lane_set.find(lane_waypoint.lane) == lane_set.end()) {
+  for (const auto& lane_waypoint : ref_point.lane_waypoints()) {
+    if (common::util::InsertIfNotPresent(&lane_set, lane_waypoint.lane)) {
       lanes->push_back(lane_waypoint.lane);
-      lane_set.insert(lane_waypoint.lane);
     }
   }
 }
@@ -606,6 +627,9 @@ bool ReferenceLine::GetSLBoundary(const common::math::Box2d& box,
   double end_l(std::numeric_limits<double>::lowest());
   std::vector<common::math::Vec2d> corners;
   box.GetAllCorners(&corners);
+
+  // the order must be counter-clockwise
+  std::vector<SLPoint> sl_corners;
   for (const auto& point : corners) {
     SLPoint sl_point;
     if (!XYToSL(point, &sl_point)) {
@@ -613,11 +637,45 @@ bool ReferenceLine::GetSLBoundary(const common::math::Box2d& box,
              << " on reference line.";
       return false;
     }
+
+    // TODO(all): move the boundary finding to the end of function,
+    // It is not accurate to check only vertices.
     start_s = std::fmin(start_s, sl_point.s());
     end_s = std::fmax(end_s, sl_point.s());
     start_l = std::fmin(start_l, sl_point.l());
     end_l = std::fmax(end_l, sl_point.l());
+
+    sl_corners.push_back(std::move(sl_point));
   }
+
+  for (std::size_t i = 0; i < corners.size(); ++i) {
+    auto index0 = i;
+    auto index1 = (i + 1) % corners.size();
+    const auto& p0 = corners[index0];
+    const auto& p1 = corners[index1];
+
+    const auto p_mid = (p0 + p1) * 0.5;
+    SLPoint sl_point_mid;
+    if (!XYToSL(p_mid, &sl_point_mid)) {
+      AERROR << "failed to get projection for point: " << p_mid.DebugString()
+             << " on reference line.";
+      return false;
+    }
+
+    Vec2d v0(sl_corners[index1].s() - sl_corners[index0].s(),
+             sl_corners[index1].l() - sl_corners[index0].l());
+
+    Vec2d v1(sl_point_mid.s() - sl_corners[index0].s(),
+             sl_point_mid.l() - sl_corners[index0].l());
+
+    *sl_boundary->add_boundary_point() = sl_corners[index0];
+
+    // sl_point is outside of polygon; add to the vertex list
+    if (v0.CrossProd(v1) < 0.0) {
+      *sl_boundary->add_boundary_point() = sl_point_mid;
+    }
+  }
+
   sl_boundary->set_start_s(start_s);
   sl_boundary->set_end_s(end_s);
   sl_boundary->set_start_l(start_l);

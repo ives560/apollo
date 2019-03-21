@@ -24,6 +24,7 @@ DECLARE_double(test_duration);
 DECLARE_string(planning_config_file);
 
 // scenarios related
+DECLARE_string(scenario_bare_intersection_unprotected_config_file);
 DECLARE_string(scenario_lane_follow_config_file);
 DECLARE_string(scenario_side_pass_config_file);
 DECLARE_string(scenario_stop_sign_unprotected_config_file);
@@ -33,6 +34,7 @@ DECLARE_string(scenario_traffic_light_unprotected_right_turn_config_file);
 DECLARE_string(scenario_valet_parking_config_file);
 DECLARE_string(scenario_narrow_street_u_turn_config_file);
 
+DECLARE_bool(enable_scenario_bare_intersection);
 DECLARE_bool(enable_scenario_side_pass);
 DECLARE_double(side_pass_min_signal_intersection_distance);
 DECLARE_bool(enable_scenario_side_pass_multiple_parked_obstacles);
@@ -256,4 +258,10 @@ DECLARE_double(side_pass_driving_width_l_buffer);
 
 DECLARE_bool(enable_parallel_hybrid_a);
 DECLARE_bool(enable_parallel_open_space_smoother);
+
+DECLARE_double(vehicle_low_speed_threshold);
+
 DECLARE_bool(enable_cuda);
+
+DECLARE_bool(enable_nonscenario_side_pass);
+DECLARE_bool(enable_soft_speed_limit);

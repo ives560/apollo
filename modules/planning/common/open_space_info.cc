@@ -22,6 +22,6 @@
 
 namespace apollo {
 namespace planning {
-OpenSpaceInfo::OpenSpaceInfo() {}
+  // TODO(deidaraho): record more trajectory information to info debug
 }  // namespace planning
 }  // namespace apollo

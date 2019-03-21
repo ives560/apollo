@@ -61,14 +61,14 @@ class Frame {
  public:
   explicit Frame(uint32_t sequence_num);
 
-  explicit Frame(uint32_t sequence_num, const LocalView &local_view,
-                 const common::TrajectoryPoint &planning_start_point,
-                 const common::VehicleState &vehicle_state,
-                 ReferenceLineProvider *reference_line_provider);
+  Frame(uint32_t sequence_num, const LocalView &local_view,
+        const common::TrajectoryPoint &planning_start_point,
+        const common::VehicleState &vehicle_state,
+        ReferenceLineProvider *reference_line_provider);
 
-  explicit Frame(uint32_t sequence_num, const LocalView &local_view,
-                 const common::TrajectoryPoint &planning_start_point,
-                 const common::VehicleState &vehicle_state);
+  Frame(uint32_t sequence_num, const LocalView &local_view,
+        const common::TrajectoryPoint &planning_start_point,
+        const common::VehicleState &vehicle_state);
 
   const common::TrajectoryPoint &PlanningStartPoint() const;
 
@@ -86,8 +86,6 @@ class Frame {
   const PublishableTrajectory &ComputedTrajectory() const;
 
   void RecordInputDebug(planning_internal::Debug *debug);
-
-  void RecordOpenSpacePlannerDebug(planning_internal::Debug *debug);
 
   const std::list<ReferenceLineInfo> &reference_line_info() const;
   std::list<ReferenceLineInfo> *mutable_reference_line_info();

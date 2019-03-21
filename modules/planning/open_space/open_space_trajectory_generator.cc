@@ -66,7 +66,7 @@ apollo::common::Status OpenSpaceTrajectoryGenerator::Plan(
     const Eigen::MatrixXd& obstacles_A, const Eigen::MatrixXd& obstacles_b,
     const std::vector<std::vector<common::math::Vec2d>>&
         obstacles_vertices_vec) {
-  if (!vehicle_state.has_x() || XYbounds.size() == 0 || end_pose.size() == 0 ||
+  if (!vehicle_state.has_x() || XYbounds.empty() || end_pose.empty() ||
       obstacles_edges_num.cols() == 0 || obstacles_A.cols() == 0 ||
       obstacles_b.cols() == 0) {
     return Status(ErrorCode::PLANNING_ERROR, "Generator input data not ready");
@@ -212,9 +212,10 @@ apollo::common::Status OpenSpaceTrajectoryGenerator::Plan(
   // record debug info
   if (FLAGS_enable_record_debug) {
     open_space_debug_.Clear();
-    RecordDebugInfo(xWS, uWS, l_warm_up, n_warm_up, dual_l_result_ds,
-                    dual_n_result_ds, state_result_ds, control_result_ds,
-                    time_result_ds, XYbounds_, obstacles_vertices_vec);
+    RecordDebugInfo(translate_origin, rotate_angle, end_pose, xWS, uWS,
+                    l_warm_up, n_warm_up, dual_l_result_ds, dual_n_result_ds,
+                    state_result_ds, control_result_ds, time_result_ds,
+                    XYbounds_, obstacles_vertices_vec);
   }
   // rescale the states to the world frame
   for (size_t i = 0; i < horizon_ + 1; ++i) {
@@ -254,15 +255,30 @@ void OpenSpaceTrajectoryGenerator::GetStitchingTrajectory(
 }
 
 void OpenSpaceTrajectoryGenerator::RecordDebugInfo(
-    const Eigen::MatrixXd& xWS, const Eigen::MatrixXd& uWS,
-    const Eigen::MatrixXd& l_warm_up, const Eigen::MatrixXd& n_warm_up,
-    const Eigen::MatrixXd& dual_l_result_ds,
+    const Vec2d& translate_origin, const double& rotate_angle,
+    const std::vector<double>& end_pose, const Eigen::MatrixXd& xWS,
+    const Eigen::MatrixXd& uWS, const Eigen::MatrixXd& l_warm_up,
+    const Eigen::MatrixXd& n_warm_up, const Eigen::MatrixXd& dual_l_result_ds,
     const Eigen::MatrixXd& dual_n_result_ds,
     const Eigen::MatrixXd& state_result_ds,
     const Eigen::MatrixXd& control_result_ds,
     const Eigen::MatrixXd& time_result_ds, const std::vector<double>& XYbounds,
     const std::vector<std::vector<common::math::Vec2d>>&
         obstacles_vertices_vec) {
+  // load translation origin and heading angle
+  auto* roi_shift_point =
+      open_space_debug_.mutable_roi_shift_point()->mutable_path_point();
+  roi_shift_point->set_x(translate_origin.x());
+  roi_shift_point->set_y(translate_origin.y());
+  roi_shift_point->set_theta(rotate_angle);
+
+  // load end_pose into debug
+  auto* end_point = open_space_debug_.mutable_end_point();
+  end_point->mutable_path_point()->set_x(end_pose[0]);
+  end_point->mutable_path_point()->set_y(end_pose[1]);
+  end_point->mutable_path_point()->set_theta(end_pose[2]);
+  end_point->set_v(end_pose[3]);
+
   // load warm start trajectory
   auto* warm_start_trajectory =
       open_space_debug_.mutable_warm_start_trajectory();

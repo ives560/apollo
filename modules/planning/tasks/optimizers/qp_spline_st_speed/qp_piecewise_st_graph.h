@@ -34,17 +34,17 @@
 #include "modules/planning/common/planning_context.h"
 #include "modules/planning/common/speed/speed_data.h"
 #include "modules/planning/common/speed/st_boundary.h"
+#include "modules/planning/common/st_graph_data.h"
 #include "modules/planning/math/smoothing_spline/piecewise_linear_generator.h"
-#include "modules/planning/tasks/optimizers/st_graph/st_graph_data.h"
 
 namespace apollo {
 namespace planning {
 
 class QpPiecewiseStGraph {
  public:
-  explicit QpPiecewiseStGraph(const QpStSpeedConfig& qp_st_speed_config,
-                              const double total_path_length,
-                              const double total_time);
+  QpPiecewiseStGraph(const QpStSpeedConfig& qp_st_speed_config,
+                     const double total_path_length,
+                     const double total_time);
 
   void SetDebugLogger(planning_internal::STGraphDebug* st_graph_debug);
 
