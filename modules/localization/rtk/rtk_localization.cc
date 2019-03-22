@@ -67,7 +67,7 @@ void RTKLocalization::GpsCallback(
   {
     std::unique_lock<std::mutex> lock(gps_status_list_mutex_);
 
-    if (gps_status_list_.empty()) {
+    if (gps_status_list_.empty()) {           //如果没有 /apollo/sensor/gnss/ins_stat 消息 返回错误
       AERROR << "Gps status message buffer is empty.";
       if (service_started_) {
         monitor_logger_.ERROR("Gps status message buffer is empty.");

@@ -124,12 +124,11 @@ void DataParser::ParseRawData(const std::string &msg) {
   data_parser_->Update(msg);    //将数据保存到数据解析器
   Parser::MessageType type;
   MessagePtr msg_ptr;
-  //while (cyber::OK()) {
+  while (cyber::OK()) {
     type = data_parser_->GetMessage(&msg_ptr);    //获取处理后的消息指针msg_ptr, 返回消息类型type
-    //if (type == Parser::MessageType::NONE) break;
-    if (type == Parser::MessageType::NONE) return;
+    if (type == Parser::MessageType::NONE) break;
     DispatchMessage(type, msg_ptr);   //根据消息类型type，发送消息msg_ptr
-  //}
+  }
 }
 
 void DataParser::CheckInsStatus(::apollo::drivers::gnss::Ins *ins) {
@@ -196,7 +195,7 @@ void DataParser::DispatchMessage(Parser::MessageType type, MessagePtr message) {
       break;
 
     case Parser::MessageType::INS_STAT:
-      PublishInsStat(message);
+      PublishInsStat(message);    // 将message消息指针转为InsStat消息发布
       break;
 
     case Parser::MessageType::BDSEPHEMERIDES:

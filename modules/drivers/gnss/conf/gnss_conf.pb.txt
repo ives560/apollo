@@ -37,7 +37,7 @@ command {
 
 rtk_solution_type: RTK_RECEIVER_SOLUTION
 imu_type: ADIS16488
-proj4_text: "+proj=utm +zone=10 +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+proj4_text: "+proj=utm +zone=49 +ellps=WGS84 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"      #proj4 参数配置中国UTM区域在zone=49
 
 tf {
     frame_id: "world"

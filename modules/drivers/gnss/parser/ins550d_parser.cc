@@ -70,9 +70,14 @@ public:
     virtual MessageType GetMessage(MessagePtr *message_ptr);
 
 private:
-    std::vector<uint8_t> buffer_;
+    bool HandleIns();
+    bool HandleInsStat();
 
+private:
+    std::vector<uint8_t> buffer_;
+    int messagetype;
     ::apollo::drivers::gnss::Ins ins_;
+    ::apollo::drivers::gnss::InsStat ins_stat_;
 };
 
 Parser* Parser::createINS550D(const config::Config& config) {
@@ -93,10 +98,41 @@ INS550DParser::INS550DParser(const config::Config& config) {
   ins_.mutable_euler_angles_covariance()->Resize(9, FLOAT_NAN);
   ins_.mutable_linear_velocity_covariance()->Resize(9, FLOAT_NAN);
 
+  messagetype = 0;
 }
 
 Parser::MessageType INS550DParser::GetMessage(MessagePtr *message_ptr) {
 
+  if (data_ == nullptr) {
+    return MessageType::NONE;
+  }
+
+  if(messagetype == 0)
+  {
+    messagetype = 1;
+
+    if (HandleIns()==true) {
+      *message_ptr = &ins_;
+      return MessageType::INS;
+    }
+
+  }
+  
+  if(messagetype == 1)
+  {
+    messagetype = 2;
+
+    if (HandleInsStat()==true) {
+      *message_ptr = &ins_stat_;
+      return MessageType::INS_STAT;
+    }
+  }
+
+  messagetype = 0;
+  return MessageType::NONE;
+}
+
+bool INS550DParser::HandleIns() {
 int DataLen = 58;
 uint8_t checksum = 0;
 uint32_t buf;
@@ -194,13 +230,19 @@ if (data_[0] == 0xBD && data_[1] == 0xDB && data_[2] == 0x0B)
         ins_.mutable_linear_acceleration()->set_y(ay);
         ins_.mutable_linear_acceleration()->set_z(az);
 
-        *message_ptr = &ins_;
-        return MessageType::INS;
+        return true;
         
         }
         
 }
-    return MessageType::NONE;
+    return false;
+}
+
+bool INS550DParser::HandleInsStat() {
+  ins_stat_.mutable_header()->set_timestamp_sec(cyber::Time::Now().ToSecond());
+  ins_stat_.set_ins_status(3);
+  ins_stat_.set_pos_type(56);
+  return true;
 }
 
 }  // namespace gnss

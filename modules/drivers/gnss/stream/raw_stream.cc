@@ -508,7 +508,6 @@ void RawStream::GpggaSpin() {
   while (cyber::OK()) {
     size_t length = out_rtk_stream_->read(buffer_gpgga_, BUFFER_SIZE); // 从导远232串口读取GPGGA数据
     if (length > 0) {
-      AERROR << "GpggaSpin: " << buffer_gpgga_<<"length: "<< length;
       if (push_location_) {
         PushGpgga(length);  //向千寻服务发送 GPGGA 消息
       }
@@ -532,7 +531,6 @@ void RawStream::RtkSpin() {
         if (out_rtk_stream_ == nullptr) {
           continue;
         }
-        AERROR << "RtkSpin get rtcm:" << buffer_rtk_;
         size_t ret = out_rtk_stream_->write(buffer_rtk_, length); //发送从千寻获取的RTK差分数据给导远232串口,out_rtk_stream_ = data_stream_;
         if (ret != length) {
           AERROR << "Expect write out rtk stream bytes " << length
@@ -560,8 +558,15 @@ void RawStream::PushGpgga(const size_t length) {
 
   char *gpgga = strstr(reinterpret_cast<char *>(buffer_gpgga_), "$GPGGA");
   if (gpgga) {
-    AINFO_EVERY(5) << "Push gpgga.";
-    in_rtk_stream_->write(reinterpret_cast<uint8_t *>(buffer_gpgga_),length);
+    char *p = strchr(gpgga, '*');
+    if (p) {
+      p += 5;
+      if (size_t(p - reinterpret_cast<char *>(buffer_gpgga_)) <= length) {
+        AINFO_EVERY(5) << "Push gpgga.";
+        in_rtk_stream_->write(reinterpret_cast<uint8_t *>(gpgga),
+                              reinterpret_cast<uint8_t *>(p) - buffer_gpgga_);
+      }
+    }
   }
 }
 
