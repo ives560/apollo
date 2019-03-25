@@ -25,11 +25,9 @@
 namespace apollo {
 namespace transform {
 
-/** \brief This class provides an easy way to publish coordinate frame transform
- * information.
- * It will handle all the messaging and stuffing of messages.  And the function
- * prototypes lay out all the
- * necessary data needed for each message.  */
+/** \brief 这个类提供了一种发布坐标帧转换信息的简单方法。
+ * 它将处理所有消息传递和消息填充。函数原型列出了每条消息所需的所有必要数据。
+ * */
 
 class TransformBroadcaster {
  public:
