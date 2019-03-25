@@ -267,7 +267,7 @@ void RTKLocalization::ComposeLocalizationMsg(
           pose.orientation().qy(), pose.orientation().qz());
       mutable_pose->set_heading(heading);
     }
-    // linear velocity
+    // 线速度
     if (pose.has_linear_velocity()) {
       mutable_pose->mutable_linear_velocity()->CopyFrom(pose.linear_velocity());
     }
@@ -275,11 +275,11 @@ void RTKLocalization::ComposeLocalizationMsg(
 
   if (imu_msg.has_imu()) {
     const auto& imu = imu_msg.imu();
-    // linear acceleration
+    // 线性加速度
     if (imu.has_linear_acceleration()) {
       if (localization->pose().has_orientation()) {
         // linear_acceleration:
-        // convert from vehicle reference to map reference
+        // 从车辆参考转换为地图参考
         Vector3d orig(imu.linear_acceleration().x(),
                       imu.linear_acceleration().y(),
                       imu.linear_acceleration().z());
@@ -298,11 +298,11 @@ void RTKLocalization::ComposeLocalizationMsg(
       }
     }
 
-    // angular velocity
+    // 角速度
     if (imu.has_angular_velocity()) {
       if (localization->pose().has_orientation()) {
         // angular_velocity:
-        // convert from vehicle reference to map reference
+        // 从车辆参考转换为地图参考
         Vector3d orig(imu.angular_velocity().x(), imu.angular_velocity().y(),
                       imu.angular_velocity().z());
         Vector3d vec = common::math::QuaternionRotate(
