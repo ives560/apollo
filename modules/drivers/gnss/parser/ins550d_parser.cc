@@ -78,6 +78,10 @@ private:
     int messagetype;
     ::apollo::drivers::gnss::Ins ins_;
     ::apollo::drivers::gnss::InsStat ins_stat_;
+
+    std::shared_ptr<apollo::cyber::Node> node_ = nullptr;
+    std::shared_ptr<apollo::cyber::Writer<apollo::drivers::gnss::Ins>>
+      ins_writer_ = nullptr;
 };
 
 Parser* Parser::createINS550D(const config::Config& config) {
@@ -99,6 +103,9 @@ INS550DParser::INS550DParser(const config::Config& config) {
   ins_.mutable_linear_velocity_covariance()->Resize(9, FLOAT_NAN);
 
   messagetype = 0;
+
+  node_ = apollo::cyber::CreateNode("INS550D_INS");
+  ins_writer_ = node_->CreateWriter<apollo::drivers::gnss::Ins>("/apollo/sensor/gnss/ins");
 }
 
 Parser::MessageType INS550DParser::GetMessage(MessagePtr *message_ptr) {
@@ -113,6 +120,7 @@ Parser::MessageType INS550DParser::GetMessage(MessagePtr *message_ptr) {
 
     if (HandleIns()==true) {
       *message_ptr = &ins_;
+      ins_writer_->Write(ins_);
       return MessageType::INS;
     }
 
