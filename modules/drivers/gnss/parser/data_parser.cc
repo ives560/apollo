@@ -261,7 +261,7 @@ void DataParser::PublishOdometry(const MessagePtr message) {
   x *= DEG_TO_RAD_LOCAL;
   y *= DEG_TO_RAD_LOCAL;
 
-  pj_transform(wgs84pj_source_, utm_target_, 1, 1, &x, &y, NULL);
+  pj_transform(wgs84pj_source_, utm_target_, 1, 1, &x, &y, NULL);   //将经纬度转换为utm
 
   gps_msg->mutable_position()->set_x(x);
   gps_msg->mutable_position()->set_y(y);
