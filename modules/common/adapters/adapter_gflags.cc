@@ -19,14 +19,14 @@
 DEFINE_bool(enable_adapter_dump, false,
             "Whether enable dumping the messages to "
             "/tmp/adapters/<topic_name>/<seq_num>.txt for debugging purposes.");
-DEFINE_string(gps_topic, "/apollo/sensor/gnss/odometry", "GPS topic name");
-DEFINE_string(imu_topic, "/apollo/sensor/gnss/corrected_imu", "IMU topic name");
+DEFINE_string(gps_topic, "/apollo/sensor/gnss/odometry", "GPS topic name");         //GPS主题名称
+DEFINE_string(imu_topic, "/apollo/sensor/gnss/corrected_imu", "IMU topic name");    //IMU主题名称
 DEFINE_string(raw_imu_topic, "/apollo/sensor/gnss/imu", "Raw IMU topic name");
 DEFINE_string(chassis_topic, "/apollo/canbus/chassis", "chassis topic name");
 DEFINE_string(chassis_detail_topic, "/apollo/canbus/chassis_detail",
               "chassis detail topic name");
 DEFINE_string(localization_topic, "/apollo/localization/pose",
-              "localization topic name");
+              "localization topic name");                                           //定位主题名称
 DEFINE_string(planning_trajectory_topic, "/apollo/planning",
               "planning trajectory topic name");
 DEFINE_string(planning_pad_topic, "/apollo/planning/pad",
@@ -73,7 +73,7 @@ DEFINE_string(routing_response_topic, "/apollo/routing_response",
 DEFINE_string(relative_odometry_topic, "/apollo/calibration/relative_odometry",
               "relative odometry topic name");
 DEFINE_string(ins_stat_topic, "/apollo/sensor/gnss/ins_stat",
-              "ins stat topic name");
+              "ins stat topic name");                                                   //ins统计主题名称
 DEFINE_string(ins_status_topic, "/apollo/sensor/gnss/ins_status",
               "ins status topic name");
 DEFINE_string(gnss_status_topic, "/apollo/sensor/gnss/gnss_status",
@@ -82,9 +82,9 @@ DEFINE_string(system_status_topic, "/apollo/monitor/system_status",
               "System status topic name");
 DEFINE_string(static_info_topic, "/apollo/monitor/static_info",
               "Static info topic name");
-DEFINE_string(mobileye_topic, "/apollo/sensor/mobileye", "mobileye topic name");
+DEFINE_string(mobileye_topic, "/apollo/sensor/mobileye", "mobileye topic name");        //mobileye 主题名称
 DEFINE_string(delphi_esr_topic, "/apollo/sensor/delphi_esr",
-              "delphi esr radar topic name");
+              "delphi esr radar topic name");                                           //delphi esr雷达主题名称
 DEFINE_string(conti_radar_topic, "/apollo/sensor/conti_radar",
               "continental radar topic name");
 DEFINE_string(racobit_radar_topic, "/apollo/sensor/racobit_radar",
