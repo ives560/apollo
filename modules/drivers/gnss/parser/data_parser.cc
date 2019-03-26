@@ -251,7 +251,7 @@ void DataParser::PublishOdometry(const MessagePtr message) {
   Ins *ins = As<Ins>(message);
   auto gps = std::make_shared<Gps>();
 
-  double unix_sec = apollo::drivers::util::gps2unix(ins->measurement_time());
+  double unix_sec = apollo::drivers::util::gps2unix(ins->measurement_time());   //将惯导发送的时间转换为unix时间
   gps->mutable_header()->set_timestamp_sec(unix_sec);
   auto *gps_msg = gps->mutable_localization();
 
@@ -295,7 +295,7 @@ void DataParser::PublishOdometry(const MessagePtr message) {
 void DataParser::PublishCorrimu(const MessagePtr message) {
   Ins *ins = As<Ins>(message);
   auto imu = std::make_shared<CorrectedImu>();
-  double unix_sec = apollo::drivers::util::gps2unix(ins->measurement_time());
+  double unix_sec = apollo::drivers::util::gps2unix(ins->measurement_time());   //将惯导发送的时间转换为unix时间
   imu->mutable_header()->set_timestamp_sec(unix_sec);
 
   auto *imu_msg = imu->mutable_imu();
