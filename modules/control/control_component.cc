@@ -41,7 +41,7 @@ bool ControlComponent::Init() {
 
   AINFO << "Control init, starting ...";
 
-  CHECK(apollo::common::util::GetProtoFromFile(FLAGS_control_conf_file,
+  CHECK(apollo::common::util::GetProtoFromFile(FLAGS_control_conf_file,     ///FLAGS_control_conf_file默认为apollo/modules/control/conf/control_conf.pb.txt
                                                &control_conf_))
       << "Unable to load control conf file: " + FLAGS_control_conf_file;
 

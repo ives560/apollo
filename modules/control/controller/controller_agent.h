@@ -41,7 +41,7 @@ namespace control {
 /**
  * @class ControllerAgent
  *
- * @brief manage all controllers declared in control config file.
+ * @brief 管理控制配置文件中声明的所有控制器。
  */
 class ControllerAgent {
  public:

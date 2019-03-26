@@ -34,7 +34,7 @@ DEFINE_string(end_way_point_filename, "default_end_way_point.txt",
 DEFINE_string(speed_control_filename, "speed_control.pb.txt",
               "The speed control region in a map.");
 
-DEFINE_string(vehicle_config_path,
+DEFINE_string(vehicle_config_path,                                             // 车辆配置文件的文件路径
               "/apollo/modules/common/data/vehicle_param.pb.txt",
               "the file path of vehicle config file");
 
