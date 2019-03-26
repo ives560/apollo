@@ -215,13 +215,15 @@ if (data_[0] == 0xBD && data_[1] == 0xDB && data_[2] == 0x0B)
         // buf = (uint32_t)(data_[46] + (data_[47] << 8));
         // double Temp = ((double)buf) * 200 / 32768;    // 温度
 
-        // buf = (uint32_t)(data_[52] + (data_[53] << 8) + (data_[54] << 16) + (data_[55] << 24));
-        // double time = ((double)buf) / 4000;    // 时间
+        buf = (uint32_t)(data_[52] + (data_[53] << 8) + (data_[54] << 16) + (data_[55] << 24));
+        double gpstime = ((double)buf) / 4000;    // 时间
 
         uint8_t datatype = data_[56];   // 轮循数据类型
 
         /*****************************************************/
         ins_.mutable_header()->set_timestamp_sec(cyber::Time::Now().ToSecond());
+
+        ins_.set_measurement_time(gpstime);   // 惯导发送的时间
 
         ins_.set_type(apollo::drivers::gnss::Ins::GOOD);
 
@@ -245,13 +247,13 @@ if (data_[0] == 0xBD && data_[1] == 0xDB && data_[2] == 0x0B)
         ins_.mutable_linear_acceleration()->set_y(ay);
         ins_.mutable_linear_acceleration()->set_z(az);
 
-        ins_.set_state(state);  // 初校准状态
+        ins_.set_state(state);              // 初校准状态
 
-        if(datatype==32)    // GPS 状态
+        if(datatype==32)                    // GPS 状态
         {
-          ins_.set_positionstate(data1);// GPS 定位状态
-          ins_.set_numstars(data2);     // 收星数
-          ins_.set_directionalstate(data3); //GPS 定向状态
+          ins_.set_positionstate(data1);    // GPS 定位状态
+          ins_.set_numstars(data2);         // 收星数
+          ins_.set_directionalstate(data3); // GPS 定向状态
         }
 
         return true;
