@@ -12,10 +12,10 @@ enable_gain_scheduler: true
 set_steer_limit: true
 enable_slope_offset: false
 
-control_period: 0.01
+control_period: 0.02
 trajectory_period: 0.1
-chassis_period: 0.01
-localization_period: 0.01
+chassis_period: 0.02
+localization_period: 0.02
 max_status_interval_sec: 0.1
 max_planning_interval_sec: 0.2
 max_planning_delay_threshold: 4.0
