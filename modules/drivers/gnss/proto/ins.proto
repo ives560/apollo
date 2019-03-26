@@ -67,4 +67,13 @@ message Ins {
 
   // 3-by-3 covariance matrix, in m^2/s^4.
   repeated float linear_acceleration_covariance = 13 [packed = true];
+
+  optional int32 state = 14; // 初校准状态
+
+  optional int32 positionstate = 15; // GPS 定位状态
+
+  optional int32 numstars = 16; // 收星数
+
+  optional int32 directionalstate = 17; //GPS 定向状态
+
 }
