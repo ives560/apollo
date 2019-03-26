@@ -28,7 +28,7 @@ minimum_speed_resolution: 0.2
 query_relative_time: 0.8
 minimum_speed_protection: 0.1
 lat_controller_conf {
-  ts: 0.01
+  ts: 0.02
   preview_window: 0
   cf: 155494.663
   cr: 155494.663
@@ -95,7 +95,7 @@ lat_controller_conf {
   }
 }
 lon_controller_conf {
-  ts: 0.01
+  ts: 0.02
   brake_deadzone: 15.5
   throttle_deadzone: 18.0
   speed_controller_input_limit: 2.0
