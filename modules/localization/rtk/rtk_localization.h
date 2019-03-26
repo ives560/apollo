@@ -98,7 +98,7 @@ class RTKLocalization {
   LocalizationEstimate last_localization_result_;
   LocalizationStatus last_localization_status_result_;
 
-  int localization_publish_freq_ = 100;
+  int localization_publish_freq_ = 50;
   int report_threshold_err_num_ = 10;
   apollo::common::monitor::MonitorLogBuffer monitor_logger_;
 
