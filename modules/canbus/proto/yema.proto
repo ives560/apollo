@@ -1,0 +1,7 @@
+syntax = "proto2";
+
+package apollo.canbus;
+
+message Yema {
+    optional int32 start = 0;
+  }
