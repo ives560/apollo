@@ -39,12 +39,9 @@ namespace util {
 
 /**
  * @class Factory
- * @brief Implements a Factory design pattern with Register and Create methods
- *
- * The objects created by this factory all implement the same interface
- * (namely, AbstractProduct). This design pattern is useful in settings where
- * multiple implementations of an interface are available, and one wishes to
- * defer the choice of the implementation in use.
+ * @brief 使用Register和Create方法实现工厂设计模式，
+ * 该工厂创建的对象都实现相同的接口(即AbstractProduct)。
+ * 这种设计模式在多个接口实现可用的设置中非常有用，并且希望推迟选择正在使用的实现。
  *
  * @param IdentifierType Type used for identifying the registered classes,
  * typically std::string.
@@ -60,8 +57,8 @@ template <typename IdentifierType, class AbstractProduct,
 class Factory {
  public:
   /**
-   * @brief Registers the class given by the creator function, linking it to id.
-   * Registration must happen prior to calling CreateObject.
+   * @brief 注册creator函数提供的类，并将其链接到id。
+   * 注册必须在调用CreateObject之前进行。
    * @param id Identifier of the class being registered
    * @param creator Function returning a pointer to an instance of
    * the registered class
@@ -88,9 +85,8 @@ class Factory {
   bool Empty() const { return producers_.empty(); }
 
   /**
-   * @brief Creates and transfers membership of an object of type matching id.
-   * Need to register id before CreateObject is called. May return nullptr
-   * silently.
+   * @brief 创建和传输与id类型匹配的对象的成员关系。
+   * 需要在调用CreateObject之前注册id。可能默默返回nullptr。
    * @param id The identifier of the class we which to instantiate
    * @param args the object construction arguments
    */
@@ -106,8 +102,7 @@ class Factory {
   }
 
   /**
-   * @brief Creates and transfers membership of an object of type matching id.
-   * Need to register id before CreateObject is called.
+   * @brief 创建和传输与id类型匹配的对象的成员关系。需要在调用CreateObject之前注册id。
    * @param id The identifier of the class we which to instantiate
    * @param args the object construction arguments
    */

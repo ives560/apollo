@@ -120,19 +120,19 @@ bool SensorCanbus<SensorType>::Init() {
   // Init can client
   auto *can_factory = CanClientFactory::Instance();
   can_factory->RegisterCanClients();
-  can_client_ = can_factory->CreateCANClient(canbus_conf_.can_card_parameter());
+  can_client_ = can_factory->CreateCANClient(canbus_conf_.can_card_parameter());    //根据配置文件创建CANClient
   if (!can_client_) {
     return OnError("Failed to create can client.");
   }
   AINFO << "Can client is successfully created.";
 
-  sensor_message_manager_.reset(new canbus::MessageManager<SensorType>());
+  sensor_message_manager_.reset(new canbus::MessageManager<SensorType>());        //创建 MessageManager
   if (sensor_message_manager_ == nullptr) {
     return OnError("Failed to create message manager.");
   }
   AINFO << "Sensor message manager is successfully created.";
 
-  if (can_receiver_.Init(can_client_.get(), sensor_message_manager_.get(),
+  if (can_receiver_.Init(can_client_.get(), sensor_message_manager_.get(),            //初始化 CanReceiver<SensorType>
                          canbus_conf_.enable_receiver_log()) != ErrorCode::OK) {
     return OnError("Failed to init can receiver.");
   }
@@ -143,22 +143,22 @@ bool SensorCanbus<SensorType>::Init() {
 
 template <typename SensorType>
 bool SensorCanbus<SensorType>::Start() {
-  // 1. init and start the can card hardware
+  // 1. 初始化并启动can卡硬件
   if (can_client_->Start() != ErrorCode::OK) {
     return OnError("Failed to start can client");
   }
   AINFO << "Can client is started.";
 
-  // 2. start receive first then send
+  // 2. 先开始接收，然后发送
   if (can_receiver_.Start() != ErrorCode::OK) {
     return OnError("Failed to start can receiver.");
   }
   AINFO << "Can receiver is started.";
 
-  // 3. set timer to trigger publish info periodically
+  // 3. 设置定时器定时触发发布信息
   // if sensor_freq == 0, then it is event-triggered publishment.
   // no need for timer.
-  if (FLAGS_sensor_freq > 0) {
+  if (FLAGS_sensor_freq > 0) {                              // FLAGS_sensor_freq 默认等于100,使用定时器触发
     const double duration_ms = 1000.0 / FLAGS_sensor_freq;
     timer_ = cyber::Timer(duration_ms, &SensorCanbus<SensorType>::OnTimer,
                               this, false);
@@ -179,11 +179,13 @@ bool SensorCanbus<SensorType>::Start() {
   return true;
 }
 
+// FLAGS_sensor_freq = 100,定时器触发函数
 template <typename SensorType>
 void SensorCanbus<SensorType>::OnTimer() {
   PublishSensorData();
 }
 
+// 线程执行函数 FLAGS_sensor_freq = 100 默认不执行
 template <typename SensorType>
 void SensorCanbus<SensorType>::DataTrigger() {
   std::condition_variable *cvar = sensor_message_manager_->GetMutableCVar();

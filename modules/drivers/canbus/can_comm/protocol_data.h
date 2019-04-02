@@ -38,13 +38,13 @@ namespace canbus {
 /**
  * @class ProtocolData
  *
- * @brief This is the base class of protocol data.
+ * @brief 这是协议数据的基类
  */
 template <typename SensorType>
 class ProtocolData {
  public:
   /**
-   * @brief static function, used to calculate the checksum of input array.
+   * @brief 静态函数，用于计算输入数组的校验和
    * @param input the pointer to the start position of input array
    * @param length the length of the input array
    * @return the value of checksum
@@ -62,19 +62,19 @@ class ProtocolData {
   virtual ~ProtocolData() = default;
 
   /*
-   * @brief get interval period for canbus messages
+   * @brief 获取canbus消息的间隔时间
    * @return the interval period in us (1e-6s)
    */
   virtual uint32_t GetPeriod() const;
 
   /*
-   * @brief get the length of protocol data. The length is usually 8.
+   * @brief 获取协议数据的长度。长度通常是8
    * @return the length of protocol data.
    */
   virtual int32_t GetLength() const;
 
   /*
-   * @brief parse received data
+   * @brief 解析接收的数据
    * @param bytes a pointer to the input bytes
    * @param length the length of the input bytes
    * @param sensor_data the parsed sensor_data

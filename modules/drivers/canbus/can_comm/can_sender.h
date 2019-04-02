@@ -57,8 +57,7 @@ class SenderMessage {
   /**
    * @brief Constructor which takes message ID and protocol data.
    * @param message_id The message ID.
-   * @param protocol_data A pointer of ProtocolData
-   *        which contains the content to send.
+   * @param protocol_data 包含要发送内容的协议数据指针
    */
   SenderMessage(const uint32_t message_id,
                 ProtocolData<SensorType> *protocol_data);
@@ -69,8 +68,7 @@ class SenderMessage {
    * @param message_id The message ID.
    * @param protocol_data A pointer of ProtocolData
    *        which contains the content to send.
-   * @param init_with_one If it is true, then initialize all bits in
-   *        the protocal data as one.
+   * @param init_with_one 如果为真，则将原型数据中的所有位初始化为1。
    */
   SenderMessage(const uint32_t message_id,
                 ProtocolData<SensorType> *protocol_data, bool init_with_one);
@@ -81,14 +79,13 @@ class SenderMessage {
   ~SenderMessage() = default;
 
   /**
-   * @brief Update the current period for sending messages by a difference.
+   * @brief 按差更新当前发送消息的期间。
    * @param delta_period Update the current period by reducing delta_period.
    */
   void UpdateCurrPeriod(const int32_t delta_period);
 
   /**
-   * @brief Update the protocol data. But the updating process depends on
-   *        the real type of protocol data which inherites ProtocolData.
+   * @brief 更新协议数据。但是更新过程依赖于继承协议数据的协议数据的实际类型。
    */
   void Update();
 
@@ -105,9 +102,8 @@ class SenderMessage {
   uint32_t message_id() const;
 
   /**
-   * @brief Get the current period to send messages. It may be different from
-   *        the period from protocol data by updating.
-   * @return The current period.
+   * @brief 获取要发送消息的当前周期。通过更新，它可能与协议数据的周期不同。
+   * @return 当前时期。
    */
   int32_t curr_period() const;
 
@@ -195,7 +191,7 @@ class CanSender {
   bool is_running_ = false;
 
   CanClient *can_client_ = nullptr;  // Owned by global canbus.cc
-  std::vector<SenderMessage<SensorType>> send_messages_;
+  std::vector<SenderMessage<SensorType>> send_messages_;    //需要发送的消息数组
   std::unique_ptr<std::thread> thread_;
   bool enable_log_ = false;
 
@@ -269,6 +265,7 @@ int32_t SenderMessage<SensorType>::curr_period() const {
   return curr_period_;
 }
 
+//can发送线程
 template <typename SensorType>
 void CanSender<SensorType>::PowerSendThreadFunc() {
   CHECK_NOTNULL(can_client_);
@@ -300,9 +297,9 @@ void CanSender<SensorType>::PowerSendThreadFunc() {
         continue;
       }
       std::vector<CanFrame> can_frames;
-      CanFrame can_frame = message.CanFrame();
+      CanFrame can_frame = message.CanFrame();    //从SenderMessage中获取需要发送的数据
       can_frames.push_back(can_frame);
-      if (can_client_->SendSingleFrame(can_frames) != common::ErrorCode::OK) {
+      if (can_client_->SendSingleFrame(can_frames) != common::ErrorCode::OK) {    //CanClient 发送 CanFrame
         AERROR << "Send msg failed:" << can_frame.CanFrameString();
       }
       if (enable_log()) {
@@ -337,7 +334,7 @@ common::ErrorCode CanSender<SensorType>::Init(CanClient *can_client,
     return common::ErrorCode::CANBUS_ERROR;
   }
   is_init_ = true;
-  can_client_ = can_client;
+  can_client_ = can_client;     //根据传入的参数初始化CanClient
   enable_log_ = enable_log;
   return common::ErrorCode::OK;
 }
@@ -351,7 +348,7 @@ void CanSender<SensorType>::AddMessage(uint32_t message_id,
     return;
   }
   send_messages_.emplace_back(
-      SenderMessage<SensorType>(message_id, protocol_data, init_with_one));
+      SenderMessage<SensorType>(message_id, protocol_data, init_with_one));     //将消息添加到数组
   AINFO << "Add send message:" << std::hex << message_id;
 }
 
@@ -362,7 +359,7 @@ common::ErrorCode CanSender<SensorType>::Start() {
     return common::ErrorCode::CANBUS_ERROR;
   }
   is_running_ = true;
-  thread_.reset(new std::thread([this] { PowerSendThreadFunc(); }));
+  thread_.reset(new std::thread([this] { PowerSendThreadFunc(); }));  //启动发送线程
 
   return common::ErrorCode::OK;
 }

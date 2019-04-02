@@ -65,13 +65,13 @@ ErrorCode LincolnController::Init(
   if (can_sender == nullptr) {
     return ErrorCode::CANBUS_ERROR;
   }
-  can_sender_ = can_sender;
+  can_sender_ = can_sender;             // 根据函数参数初始化CanSender
 
   if (message_manager == nullptr) {
     AERROR << "protocol manager is null.";
     return ErrorCode::CANBUS_ERROR;
   }
-  message_manager_ = message_manager;
+  message_manager_ = message_manager;   // 根据函数参数初始化MessageManager
 
   // sender part
   brake_60_ = dynamic_cast<Brake60 *>(
@@ -128,7 +128,7 @@ bool LincolnController::Start() {
     return false;
   }
   const auto &update_func = [this] { SecurityDogThreadFunc(); };
-  thread_.reset(new std::thread(update_func));
+  thread_.reset(new std::thread(update_func));                    // 启动线程
 
   return true;
 }
@@ -748,6 +748,7 @@ bool LincolnController::CheckChassisError() {
   return false;
 }
 
+// 线程执行函数
 void LincolnController::SecurityDogThreadFunc() {
   if (can_sender_ == nullptr) {
     AERROR << "Fail to run SecurityDogThreadFunc() because can_sender_ is "
@@ -769,7 +770,7 @@ void LincolnController::SecurityDogThreadFunc() {
     const Chassis::DrivingMode mode = driving_mode();
     bool emergency_mode = false;
 
-    // 1. steer control check
+    // 1. 转向控制检查
     if ((mode == Chassis::COMPLETE_AUTO_DRIVE ||
          mode == Chassis::AUTO_STEER_ONLY) &&
         CheckResponse(CHECK_RESPONSE_STEER_UNIT_FLAG, false) == false) {
@@ -782,7 +783,7 @@ void LincolnController::SecurityDogThreadFunc() {
       steer_ctrl_fail = 0;
     }
 
-    // 2. speed control check
+    // 2. 速度控制检查
     if ((mode == Chassis::COMPLETE_AUTO_DRIVE ||
          mode == Chassis::AUTO_SPEED_ONLY) &&
         CheckResponse(CHECK_RESPONSE_SPEED_UNIT_FLAG, false) == false) {

@@ -115,7 +115,7 @@ template <typename SensorType>
 ::apollo::common::ErrorCode CanReceiver<SensorType>::Init(
     CanClient *can_client, MessageManager<SensorType> *pt_manager,
     bool enable_log) {
-  can_client_ = can_client;
+  can_client_ = can_client;             //根据传入的参数初始化CanClient
   pt_manager_ = pt_manager;
   enable_log_ = enable_log;
   if (can_client_ == nullptr) {
@@ -130,6 +130,7 @@ template <typename SensorType>
   return ::apollo::common::ErrorCode::OK;
 }
 
+//can 接收线程
 template <typename SensorType>
 void CanReceiver<SensorType>::RecvThreadFunc() {
   AINFO << "Can client receiver thread starts.";
@@ -144,7 +145,7 @@ void CanReceiver<SensorType>::RecvThreadFunc() {
   while (IsRunning()) {
     std::vector<CanFrame> buf;
     int32_t frame_num = MAX_CAN_RECV_FRAME_LEN;
-    if (can_client_->Receive(&buf, &frame_num) !=
+    if (can_client_->Receive(&buf, &frame_num) !=       // CanClient 接收can数据
         ::apollo::common::ErrorCode::OK) {
       LOG_IF_EVERY_N(ERROR, receive_error_count++ > ERROR_COUNT_MAX,
                      ERROR_COUNT_MAX)
@@ -173,7 +174,7 @@ void CanReceiver<SensorType>::RecvThreadFunc() {
       uint8_t len = frame.len;
       uint32_t uid = frame.id;
       const uint8_t *data = frame.data;
-      pt_manager_->Parse(uid, data, len);
+      pt_manager_->Parse(uid, data, len);         // 使用 MessageManager 解析数据
       if (enable_log_) {
         ADEBUG << "recv_can_frame#" << frame.CanFrameString();
       }
@@ -195,7 +196,7 @@ template <typename SensorType>
   }
   is_running_.exchange(true);
 
-  async_result_ = cyber::Async(&CanReceiver<SensorType>::RecvThreadFunc, this);
+  async_result_ = cyber::Async(&CanReceiver<SensorType>::RecvThreadFunc, this);   // 启动接收线程
   return ::apollo::common::ErrorCode::OK;
 }
 

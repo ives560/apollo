@@ -91,6 +91,7 @@ ErrorCode VehicleController::SetDrivingMode(
   return ErrorCode::OK;
 }
 
+// 根据接收到的ControlCommand消息发送can消息到车辆
 ErrorCode VehicleController::Update(const ControlCommand &command) {
   if (!is_initialized_) {
     AERROR << "Controller not initialized.";
@@ -125,9 +126,9 @@ ErrorCode VehicleController::Update(const ControlCommand &command) {
 
   if (driving_mode_ == Chassis::COMPLETE_AUTO_DRIVE ||
       driving_mode_ == Chassis::AUTO_SPEED_ONLY) {
-    Gear(control_command.gear_location());
-    Throttle(control_command.throttle());
-    Brake(control_command.brake());
+    Gear(control_command.gear_location());          // 发送档位can消息到车辆
+    Throttle(control_command.throttle());           // 发送油门can消息到车辆
+    Brake(control_command.brake());                 // 发送刹车can消息到车辆
     SetEpbBreak(control_command);
     SetLimits();
   }

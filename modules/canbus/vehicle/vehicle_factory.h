@@ -35,8 +35,7 @@ namespace canbus {
 /**
  * @class VehicleFactory
  *
- * @brief This class is a factory class that will generate different
- * vehicle factories based on the vehicle brand.
+ * @brief 这个类是一个工厂基类，它将根据汽车品牌生成不同的汽车工厂。
  */
 class VehicleFactory
     : public common::util::Factory<VehicleParameter::VehicleBrand,

@@ -37,9 +37,8 @@ namespace canbus {
 /**
  * @class AbstractVehicleFactory
  *
- * @brief this class is the abstract factory following the AbstractFactory
- * design pattern. It can create VehicleController and MessageManager based on
- * a given VehicleParameter.
+ * @brief 该类是遵循AbstractFactory设计模式的抽象工厂。
+ * 它可以根据给定的vehicle参数创建vehicle ontroller和MessageManager。
  */
 class AbstractVehicleFactory {
  public:

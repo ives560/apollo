@@ -47,8 +47,7 @@ using ::apollo::drivers::canbus::MessageManager;
 /**
  * @class VehicleController
  *
- * @brief This is the interface class of vehicle controller. It defines pure
- * virtual functions, and also some implemented common functions.
+ * @brief 这是车辆控制器的接口类。它定义了纯虚函数和一些实现的公共函数。
  */
 class VehicleController {
  public:

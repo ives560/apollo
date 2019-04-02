@@ -50,7 +50,7 @@ bool CanbusComponent::Init() {
   // Init can client
   auto can_factory = CanClientFactory::Instance();
   can_factory->RegisterCanClients();
-  can_client_ = can_factory->CreateCANClient(canbus_conf_.can_card_parameter());
+  can_client_ = can_factory->CreateCANClient(canbus_conf_.can_card_parameter());  // 根据配置文件创建can卡
   if (!can_client_) {
     AERROR << "Failed to create can client.";
     return false;
@@ -60,41 +60,41 @@ bool CanbusComponent::Init() {
   VehicleFactory vehicle_factory;
   vehicle_factory.RegisterVehicleFactory();
   auto vehicle_object =
-      vehicle_factory.CreateVehicle(canbus_conf_.vehicle_parameter());
+      vehicle_factory.CreateVehicle(canbus_conf_.vehicle_parameter());            // 根据配置文件创建车辆
   if (!vehicle_object) {
     AERROR << "Failed to create vehicle:";
     return false;
   }
 
-  message_manager_ = vehicle_object->CreateMessageManager();
+  message_manager_ = vehicle_object->CreateMessageManager();                      // 创建车辆can消息的发送和接收器
   if (message_manager_ == nullptr) {
     AERROR << "Failed to create message manager.";
     return false;
   }
   AINFO << "Message manager is successfully created.";
 
-  if (can_receiver_.Init(can_client_.get(), message_manager_.get(),
+  if (can_receiver_.Init(can_client_.get(), message_manager_.get(),                 // 初始化 CanClient
                          canbus_conf_.enable_receiver_log()) != ErrorCode::OK) {
     AERROR << "Failed to init can receiver.";
     return false;
   }
   AINFO << "The can receiver is successfully initialized.";
 
-  if (can_sender_.Init(can_client_.get(), canbus_conf_.enable_sender_log()) !=
+  if (can_sender_.Init(can_client_.get(), canbus_conf_.enable_sender_log()) !=      // 初始化 CanSender
       ErrorCode::OK) {
     AERROR << "Failed to init can sender.";
     return false;
   }
   AINFO << "The can sender is successfully initialized.";
 
-  vehicle_controller_ = vehicle_object->CreateVehicleController();
+  vehicle_controller_ = vehicle_object->CreateVehicleController();                  // 创建车辆控制器
   if (vehicle_controller_ == nullptr) {
     AERROR << "Failed to create vehicle controller.";
     return false;
   }
   AINFO << "The vehicle controller is successfully created.";
 
-  if (vehicle_controller_->Init(canbus_conf_.vehicle_parameter(), &can_sender_,
+  if (vehicle_controller_->Init(canbus_conf_.vehicle_parameter(), &can_sender_,      // 初始化车辆控制器
                                 message_manager_.get()) != ErrorCode::OK) {
     AERROR << "Failed to init vehicle controller.";
     return false;
@@ -114,7 +114,7 @@ bool CanbusComponent::Init() {
   control_cmd_reader_config.pending_queue_size =
       FLAGS_control_cmd_pending_queue_size;
 
-  if (FLAGS_receive_guardian) {
+  if (FLAGS_receive_guardian) {     // 默认 FLAGS_receive_guardian = false
     guardian_cmd_reader_ = node_->CreateReader<GuardianCommand>(
         guardian_cmd_reader_config,
         [this](const std::shared_ptr<GuardianCommand> &cmd) {
@@ -122,7 +122,7 @@ bool CanbusComponent::Init() {
           OnGuardianCommand(*cmd);
         });
   } else {
-    control_command_reader_ = node_->CreateReader<ControlCommand>(
+    control_command_reader_ = node_->CreateReader<ControlCommand>(        // ControlCommand 读
         control_cmd_reader_config,
         [this](const std::shared_ptr<ControlCommand> &cmd) {
           ADEBUG << "Received control data: run canbus callback.";
@@ -130,32 +130,32 @@ bool CanbusComponent::Init() {
         });
   }
 
-  chassis_writer_ = node_->CreateWriter<Chassis>(FLAGS_chassis_topic);
+  chassis_writer_ = node_->CreateWriter<Chassis>(FLAGS_chassis_topic);    // Chassis 写
 
   chassis_detail_writer_ =
-      node_->CreateWriter<ChassisDetail>(FLAGS_chassis_detail_topic);
+      node_->CreateWriter<ChassisDetail>(FLAGS_chassis_detail_topic);     // ChassisDetail 写
 
-  // 1. init and start the can card hardware
+  // 1. 初始化并启动can卡硬件
   if (can_client_->Start() != ErrorCode::OK) {
     AERROR << "Failed to start can client";
     return false;
   }
   AINFO << "Can client is started.";
 
-  // 2. start receive first then send
+  // 2. 先开始接收
   if (can_receiver_.Start() != ErrorCode::OK) {
     AERROR << "Failed to start can receiver.";
     return false;
   }
   AINFO << "Can receiver is started.";
 
-  // 3. start send
+  // 3. 开始发送
   if (can_sender_.Start() != ErrorCode::OK) {
     AERROR << "Failed to start can sender.";
     return false;
   }
 
-  // 4. start controller
+  // 4. 启动控制器
   if (vehicle_controller_->Start() == false) {
     AERROR << "Failed to start vehicle controller.";
     return false;
@@ -169,7 +169,7 @@ bool CanbusComponent::Init() {
 void CanbusComponent::PublishChassis() {
   Chassis chassis = vehicle_controller_->chassis();
   common::util::FillHeader(node_->Name(), &chassis);
-  chassis_writer_->Write(std::make_shared<Chassis>(chassis));
+  chassis_writer_->Write(std::make_shared<Chassis>(chassis));   // 发送Chassis消息
   ADEBUG << chassis.ShortDebugString();
 }
 
@@ -181,18 +181,20 @@ void CanbusComponent::PublishChassisDetail() {
       std::make_shared<ChassisDetail>(chassis_detail));
 }
 
+// 定时器执行函数
 bool CanbusComponent::Proc() {
   PublishChassis();
-  if (FLAGS_enable_chassis_detail_pub) {
+  if (FLAGS_enable_chassis_detail_pub) {        // 默认 FLAGS_enable_chassis_detail_pub = false
     PublishChassisDetail();
   }
   return true;
 }
 
+// 接收到控制消息ControlCommand回调函数
 void CanbusComponent::OnControlCommand(const ControlCommand &control_command) {
   int64_t current_timestamp =
       apollo::common::time::AsInt64<common::time::micros>(Clock::Now());
-  // if command coming too soon, just ignore it.
+  // 如果命令来得太快，就忽略它。
   if (current_timestamp - last_timestamp_ < FLAGS_min_cmd_interval * 1000) {
     ADEBUG << "Control command comes too soon. Ignore.\n Required "
               "FLAGS_min_cmd_interval["
@@ -207,7 +209,7 @@ void CanbusComponent::OnControlCommand(const ControlCommand &control_command) {
          << current_timestamp -
                 static_cast<int64_t>(control_command.header().timestamp_sec());
 
-  if (vehicle_controller_->Update(control_command) != ErrorCode::OK) {
+  if (vehicle_controller_->Update(control_command) != ErrorCode::OK) {      //将控制命令通过can发送给车辆
     AERROR << "Failed to process callback function OnControlCommand because "
               "vehicle_controller_->Update error.";
     return;

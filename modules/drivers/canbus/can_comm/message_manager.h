@@ -49,7 +49,7 @@ using micros = std::chrono::microseconds;
 /**
  * @struct CheckIdArg
  *
- * @brief this struct include data for check ids.
+ * @brief 这个结构包含用于检查id的数据
  */
 struct CheckIdArg {
   int64_t period = 0;
@@ -61,8 +61,7 @@ struct CheckIdArg {
 /**
  * @class MessageManager
  *
- * @brief message manager manages protocols. It supports parse and can get
- * protocol data by message id.
+ * @brief 消息管理器管理协议。它支持解析，可以通过消息id获取协议数据。
  */
 template <typename SensorType>
 class MessageManager {
@@ -77,7 +76,7 @@ class MessageManager {
   virtual ~MessageManager() = default;
 
   /**
-   * @brief parse data and store parsed info in protocol data
+   * @brief 解析数据并将解析后的信息存储在协议数据中
    * @param message_id the id of the message
    * @param data a pointer to the data array to be parsed
    * @param length the length of data array
@@ -186,7 +185,7 @@ void MessageManager<SensorType>::Parse(const uint32_t message_id,
   }
   {
     std::lock_guard<std::mutex> lock(sensor_data_mutex_);
-    protocol_data->Parse(data, length, &sensor_data_);
+    protocol_data->Parse(data, length, &sensor_data_);      //调用 ProtocolData<SensorType> 的解析函数
   }
   received_ids_.insert(message_id);
   // check if need to check period
