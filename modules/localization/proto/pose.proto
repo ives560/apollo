@@ -21,8 +21,8 @@ package apollo.localization;
 import "modules/common/proto/geometry.proto";
 
 message Pose {
-  // Position of the vehicle reference point (VRP) in the map reference frame.
-  // The VRP is the center of rear axle.
+  // 车辆参考点(VRP)在地图参考帧中的位置
+  // VRP是后轮的中心
   optional apollo.common.PointENU position = 1;
 
   // A quaternion that represents the rotation from the IMU coordinate
@@ -43,8 +43,7 @@ message Pose {
   optional apollo.common.Point3D angular_velocity = 5;
 
   // Heading
-  // The heading is zero when the car is facing East and positive when facing
-  // North.
+  // 当车向东行驶时，航向为零;当车向北行驶时，航向为正。
   optional double heading = 6;
 
   // Linear acceleration of the VRP in the vehicle reference frame.
@@ -57,9 +56,9 @@ message Pose {
 
   // Roll/pitch/yaw that represents a rotation with intrinsic sequence z-x-y.
   // in world coordinate (East/North/Up)
-  // The roll, in (-pi/2, pi/2), corresponds to a rotation around the y-axis.
-  // The pitch, in [-pi, pi), corresponds to a rotation around the x-axis.
-  // The yaw, in [-pi, pi), corresponds to a rotation around the z-axis.
-  // The direction of rotation follows the right-hand rule.
+  // The roll, in (-pi/2, pi/2), 对应于绕y轴旋转
+  // The pitch, in [-pi, pi), 对应于绕x轴旋转
+  // The yaw, in [-pi, pi), 对应于绕z轴旋转
+  // 旋转的方向遵循右手定则
   optional apollo.common.Point3D euler_angles = 9;
 }
